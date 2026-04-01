@@ -12,6 +12,7 @@ import 'package:excel/excel.dart';
 
 import '../providers/auth_provider.dart';
 import '../providers/habit_provider.dart';
+import '../providers/theme_provider.dart';
 import '../models/habit_model.dart';
 import 'login_screen.dart';
 
@@ -154,13 +155,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final authProvider = Provider.of<AuthProvider>(context);
     final user = authProvider.user;
     final habitProvider = Provider.of<HabitProvider>(context);
+    final themeProvider = Provider.of<ThemeProvider>(context);
     final habits = habitProvider.habits;
 
     final chartData = _getLast7DaysData(habits);
     final double maxY = chartData.isEmpty ? 5.0 : (chartData.reduce((a, b) => a > b ? a : b) + 2).toDouble();
 
     return Scaffold(
-      backgroundColor: const Color(0xFF131318),
       appBar: AppBar(
         title: Text('Profile & Analytics', style: GoogleFonts.outfit(fontWeight: FontWeight.bold)),
         backgroundColor: Colors.transparent,
@@ -197,7 +198,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
               const SizedBox(height: 30),
 
-              // Chart Section
+              // Theme Toggle
+              Container(
+                margin: const EdgeInsets.symmetric(horizontal: 10),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).cardTheme.color,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: SwitchListTile(
+                  title: Text(
+                    'Dark Mode',
+                    style: GoogleFonts.outfit(fontWeight: FontWeight.w600),
+                  ),
+                  secondary: Icon(
+                    themeProvider.isDarkMode ? Icons.dark_mode : Icons.light_mode,
+                    color: Theme.of(context).primaryColor,
+                  ),
+                  value: themeProvider.isDarkMode,
+                  onChanged: (value) => themeProvider.toggleTheme(),
+                ),
+              ),
+
+              const SizedBox(height: 20),
               Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(

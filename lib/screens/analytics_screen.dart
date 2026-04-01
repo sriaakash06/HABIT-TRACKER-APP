@@ -262,6 +262,20 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
   Widget _buildHabitBreakdown(Habit habit) {
     final color = Color(int.parse(habit.color, radix: 16));
     final completionRate = habit.completionRate;
+    final now = DateTime.now();
+    
+    String progressText = "${(completionRate * 100).toInt()}% consistency";
+    int totalDaysInRange = -1;
+    int completedInRange = 0;
+
+    if (habit.startDate != null && habit.endDate != null) {
+      totalDaysInRange = habit.endDate!.difference(habit.startDate!).inDays + 1;
+      completedInRange = habit.completionDates.where((d) => 
+        !d.isBefore(habit.startDate!) && !d.isAfter(habit.endDate!)
+      ).length;
+      progressText = "$completedInRange / $totalDaysInRange days";
+    }
+
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
@@ -270,16 +284,25 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
         borderRadius: BorderRadius.circular(20),
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Text(habit.emoji, style: const TextStyle(fontSize: 20)),
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: color.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(habit.emoji, style: const TextStyle(fontSize: 18)),
+              ),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(habit.name, style: GoogleFonts.outfit(fontWeight: FontWeight.w600)),
+                    Text(habit.name, 
+                      style: GoogleFonts.outfit(fontWeight: FontWeight.w600, fontSize: 15)),
                     if (habit.startDate != null && habit.endDate != null)
                       Text(
                         '${DateFormat('d/M/yy').format(habit.startDate!)} → ${DateFormat('d/M/yy').format(habit.endDate!)}',
@@ -288,16 +311,29 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                   ],
                 ),
               ),
-              Text("${(completionRate * 100).toInt()}%", style: GoogleFonts.outfit(color: Colors.white60)),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(progressText, 
+                    style: GoogleFonts.outfit(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
+                  if (totalDaysInRange != -1)
+                    Text("${(completionRate * 100).toInt()}% efficiency",
+                      style: GoogleFonts.outfit(color: Colors.white24, fontSize: 10)),
+                ],
+              ),
             ],
           ),
-          const SizedBox(height: 12),
-          LinearProgressIndicator(
-            value: completionRate,
-            backgroundColor: Colors.white10,
-            valueColor: AlwaysStoppedAnimation<Color>(color),
-            borderRadius: BorderRadius.circular(10),
-            minHeight: 8,
+          const SizedBox(height: 16),
+          Stack(
+            children: [
+              LinearProgressIndicator(
+                value: totalDaysInRange != -1 ? (completedInRange / totalDaysInRange) : completionRate,
+                backgroundColor: Colors.white10,
+                valueColor: AlwaysStoppedAnimation<Color>(color),
+                borderRadius: BorderRadius.circular(10),
+                minHeight: 10,
+              ),
+            ],
           ),
         ],
       ),

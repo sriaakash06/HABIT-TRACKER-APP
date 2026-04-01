@@ -110,31 +110,51 @@ class HabitProvider with ChangeNotifier {
     await _firestore.collection('habits').doc(habit.id).update(updateMap);
   }
 
-  /// Toggle completion for today: tick → untick, untick → tick
-  Future<void> toggleHabitCompletion(Habit habit) async {
-    if (habit.isCompletedToday) {
-      await _uncompleteHabit(habit);
+  /// Toggle completion for a specific date
+  Future<void> toggleHabitCompletion(Habit habit, [DateTime? dateOrNull]) async {
+    final date = dateOrNull ?? DateTime.now();
+    final isCompletedOn = habit.completionDates.any((d) => 
+      d.year == date.year && d.month == date.month && d.day == date.day
+    );
+
+    if (isCompletedOn) {
+      await _uncompleteHabit(habit, date);
     } else {
-      await _completeHabit(habit);
+      await _completeHabit(habit, date);
     }
   }
 
-  Future<void> _completeHabit(Habit habit) async {
-    final now = DateTime.now();
-
+  Future<void> _completeHabit(Habit habit, DateTime date) async {
     List<DateTime> updatedDates = List.from(habit.completionDates);
-    updatedDates.add(now);
+    updatedDates.add(date);
+    updatedDates.sort((a, b) => b.compareTo(a));
 
-    int newStreak = habit.streak;
-    final yesterday = now.subtract(const Duration(days: 1));
-    bool wasCompletedYesterday = habit.lastCompleted.year == yesterday.year &&
-        habit.lastCompleted.month == yesterday.month &&
-        habit.lastCompleted.day == yesterday.day;
+    // Recalculate streak based on latest status
+    int newStreak = 0;
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final yesterday = today.subtract(const Duration(days: 1));
 
-    if (wasCompletedYesterday || habit.streak == 0) {
-      newStreak++;
-    } else {
-      newStreak = 1;
+    if (updatedDates.isNotEmpty) {
+      final lastDate = DateTime(updatedDates.first.year, updatedDates.first.month, updatedDates.first.day);
+      
+      // Streak is only active if last completion was today or yesterday
+      if (lastDate.isAtSameMomentAs(today) || lastDate.isAtSameMomentAs(yesterday)) {
+        newStreak = 1;
+        for (int i = 0; i < updatedDates.length - 1; i++) {
+          final d1 = DateTime(updatedDates[i].year, updatedDates[i].month, updatedDates[i].day);
+          final d2 = DateTime(updatedDates[i+1].year, updatedDates[i+1].month, updatedDates[i+1].day);
+          if (d1.difference(d2).inDays == 1) {
+            newStreak++;
+          } else if (d1.difference(d2).inDays == 0) {
+            continue; // Duplicate date entry, ignore for streak
+          } else {
+            break;
+          }
+        }
+      } else {
+        newStreak = 0; // Streak broken
+      }
     }
 
     final index = _habits.indexWhere((h) => h.id == habit.id);
@@ -145,7 +165,7 @@ class HabitProvider with ChangeNotifier {
         name: habit.name,
         emoji: habit.emoji,
         streak: newStreak,
-        lastCompleted: now,
+        lastCompleted: updatedDates.first,
         completionDates: updatedDates,
         color: habit.color,
         category: habit.category,
@@ -156,41 +176,43 @@ class HabitProvider with ChangeNotifier {
     }
 
     await _firestore.collection('habits').doc(habit.id).update({
-      'lastCompleted': Timestamp.fromDate(now),
+      'lastCompleted': Timestamp.fromDate(updatedDates.first),
       'streak': newStreak,
       'completionDates':
           updatedDates.map((e) => Timestamp.fromDate(e)).toList(),
     });
   }
 
-  Future<void> _uncompleteHabit(Habit habit) async {
-    final now = DateTime.now();
-
-    // Remove today's completion entries
+  Future<void> _uncompleteHabit(Habit habit, DateTime date) async {
+    // Remove completion entry for specified date
     final updatedDates = habit.completionDates.where((d) {
-      return !(d.year == now.year && d.month == now.month && d.day == now.day);
+      return !(d.year == date.year && d.month == date.month && d.day == date.day);
     }).toList();
+    updatedDates.sort((a, b) => b.compareTo(a));
 
-    // Recalculate streak: go back to previous lastCompleted
-    DateTime newLastCompleted = DateTime(2000);
+    // Recalculate streak
     int newStreak = 0;
+    DateTime newLastCompleted = DateTime(2000);
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final yesterday = today.subtract(const Duration(days: 1));
 
     if (updatedDates.isNotEmpty) {
-      final sorted = List<DateTime>.from(updatedDates)
-        ..sort((a, b) => b.compareTo(a));
-      newLastCompleted = sorted.first;
-
-      // Recalculate streak from sorted dates
-      newStreak = 1;
-      for (int i = 0; i < sorted.length - 1; i++) {
-        final diff = sorted[i]
-            .difference(DateTime(
-                sorted[i + 1].year, sorted[i + 1].month, sorted[i + 1].day))
-            .inDays;
-        if (diff == 1) {
-          newStreak++;
-        } else {
-          break;
+      newLastCompleted = updatedDates.first;
+      final lastDate = DateTime(newLastCompleted.year, newLastCompleted.month, newLastCompleted.day);
+      
+      if (lastDate.isAtSameMomentAs(today) || lastDate.isAtSameMomentAs(yesterday)) {
+        newStreak = 1;
+        for (int i = 0; i < updatedDates.length - 1; i++) {
+          final d1 = DateTime(updatedDates[i].year, updatedDates[i].month, updatedDates[i].day);
+          final d2 = DateTime(updatedDates[i+1].year, updatedDates[i+1].month, updatedDates[i+1].day);
+          if (d1.difference(d2).inDays == 1) {
+            newStreak++;
+          } else if (d1.difference(d2).inDays == 0) {
+            continue;
+          } else {
+            break;
+          }
         }
       }
     }
@@ -222,7 +244,7 @@ class HabitProvider with ChangeNotifier {
   }
 
   // Keep for backward compat
-  Future<void> completeHabit(Habit habit) => toggleHabitCompletion(habit);
+  Future<void> completeHabit(Habit habit) => toggleHabitCompletion(habit, DateTime.now());
 
   Future<void> deleteHabit(String id) async {
     _habits.removeWhere((h) => h.id == id);

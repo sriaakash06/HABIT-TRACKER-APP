@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import '../providers/habit_provider.dart';
 import '../providers/auth_provider.dart';
+import '../providers/theme_provider.dart';
 import '../models/habit_model.dart';
 import 'add_habit_screen.dart';
 import 'analytics_screen.dart';
@@ -57,6 +58,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     final habitProvider = Provider.of<HabitProvider>(context);
     final authProvider = Provider.of<AuthProvider>(context);
+    final themeProvider = Provider.of<ThemeProvider>(context);
     final habits = habitProvider.habits;
     final user = authProvider.user;
 
@@ -160,6 +162,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildHeader(String name, AuthProvider authProvider) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 20, 12, 20),
       child: Row(
@@ -205,6 +208,13 @@ class _HomeScreenState extends State<HomeScreen> {
             ],
           ),
           const Spacer(),
+          IconButton(
+            icon: Icon(
+              themeProvider.isDarkMode ? Icons.dark_mode_outlined : Icons.light_mode_outlined,
+              color: Theme.of(context).primaryColor,
+            ),
+            onPressed: () => themeProvider.toggleTheme(),
+          ),
           // Direct logout button — no settings icon, no popup
           GestureDetector(
             onTap: () async {
@@ -563,11 +573,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ],
             ),
-            // Complete toggle — today: interactive, past: read-only, future: clock icon
+            // Complete toggle — now works for today and past dates. Future remains read-only.
             GestureDetector(
-              onTap: isViewingToday
-                  ? () => provider.toggleHabitCompletion(habit)
-                  : null,
+              onTap: isFutureDate
+                  ? null
+                  : () => provider.toggleHabitCompletion(habit, _selectedDate),
               child: Container(
                 height: 32,
                 width: 32,
