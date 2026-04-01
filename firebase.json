@@ -1,0 +1,39 @@
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "habittracker-35699",
+          "appId": "1:110162370618:android:809f4134b06cb2745b5503",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "habittracker-35699",
+          "configurations": {
+            "android": "1:110162370618:android:809f4134b06cb2745b5503",
+            "ios": "1:110162370618:ios:bc5fc7ea609b096c5b5503",
+            "macos": "1:110162370618:ios:bc5fc7ea609b096c5b5503",
+            "web": "1:110162370618:web:b54263f12f9852a75b5503",
+            "windows": "1:110162370618:web:00f9d080024debe85b5503"
+          }
+        }
+      }
+    }
+  },
+  "auth": {
+    "providers": {
+      "googleSignIn": {
+        "oAuthBrandDisplayName": "HabitTracker",
+        "supportEmail": "sriaakash06@gmail.com"
+      }
+    }
+  },
+  "firestore": {
+    "database": "(default)",
+    "location": "us-central",
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  }
+}

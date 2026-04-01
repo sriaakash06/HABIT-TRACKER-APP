@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Trackify - Daily Rituals</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary-fixed": "#ff7574",
+              "surface-container-highest": "#eae8e2",
+              "outline-variant": "#bbb9b4",
+              "on-secondary-fixed-variant": "#6514d6",
+              "on-tertiary-fixed-variant": "#006d4e",
+              "primary-dim": "#a5292f",
+              "error": "#be2d06",
+              "primary": "#b6353a",
+              "error-dim": "#b92902",
+              "primary-container": "#ff7574",
+              "on-primary": "#ffffff",
+              "surface-dim": "#e5e2dc",
+              "on-secondary-container": "#5b00c7",
+              "tertiary-fixed-dim": "#7defc0",
+              "on-secondary": "#ffffff",
+              "on-secondary-fixed": "#430097",
+              "on-surface-variant": "#656461",
+              "on-primary-container": "#4e0009",
+              "surface-variant": "#eae8e2",
+              "on-error-container": "#520c00",
+              "surface-tint": "#b6353a",
+              "tertiary-dim": "#006548",
+              "inverse-surface": "#0e0e0c",
+              "inverse-on-surface": "#9e9d98",
+              "background": "#fffcf7",
+              "surface-container-lowest": "#ffffff",
+              "on-tertiary-container": "#006146",
+              "secondary-container": "#dcc9ff",
+              "surface-container": "#f6f3ee",
+              "tertiary-fixed": "#8cfece",
+              "primary-fixed-dim": "#f56364",
+              "surface-container-low": "#fcf9f4",
+              "surface-bright": "#fffcf7",
+              "on-primary-fixed-variant": "#60000d",
+              "on-background": "#383835",
+              "on-primary-fixed": "#000000",
+              "on-tertiary-fixed": "#004d36",
+              "secondary-dim": "#6d24de",
+              "on-tertiary": "#ffffff",
+              "on-error": "#ffffff",
+              "tertiary-container": "#8cfece",
+              "secondary-fixed-dim": "#d0b8ff",
+              "surface": "#fffcf7",
+              "error-container": "#f95630",
+              "secondary-fixed": "#dcc9ff",
+              "inverse-primary": "#ff6b6b",
+              "outline": "#82807c",
+              "on-surface": "#383835",
+              "surface-container-high": "#f0eee8",
+              "secondary": "#7a37eb",
+              "tertiary": "#007353"
+            },
+            fontFamily: {
+              "headline": ["Plus Jakarta Sans"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            background-color: #fffcf7;
+            color: #383835;
+            font-family: 'Inter', sans-serif;
+        }
+        .header-font {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="min-h-screen pb-32">
+<!-- TopAppBar -->
+<header class="bg-[#fffcf7] dark:bg-stone-950 flex justify-between items-center px-6 py-4 w-full sticky top-0 z-40">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full overflow-hidden bg-surface-container-highest">
+<img alt="User profile" class="w-full h-full object-cover" data-alt="Close-up portrait of a smiling young man with soft natural lighting and warm skin tones against a blurred neutral background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCgzuNVwaGEhGhcmnTnmU0UCyaKi8LhCvW3SVXKIqroJTmwWo3NJQeTrYPn0-l0d7_nFX-xDKNfoKnXX_EX0XW74TbiHy8aYu0sXCTa9M6smQWXNyOJuZknA-61-djnP50ZyH6uCBNlbJTIwuCSA6Rc-w_BOxAnMgyFGhLro_ZEAc5mXPMDGevX6ImdQfSM8kKHPkymrAFvfCSr6qrclwqmUiX4u6kRBn6qj2y3NO7wg-XtN_QJ5JTWW_oZbUMpmJA-XMBxPDm0pGI"/>
+</div>
+<span class="font-['Plus_Jakarta_Sans'] font-extrabold text-2xl text-[#b6353a] tracking-tight">Trackify</span>
+</div>
+<button class="w-10 h-10 flex items-center justify-center rounded-full text-stone-500 hover:bg-stone-100 transition-colors active:scale-95 active:duration-150">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+</button>
+</header>
+<main class="max-w-xl mx-auto px-6 pt-4">
+<!-- Greeting Section -->
+<section class="mb-8">
+<h1 class="header-font text-3xl font-bold tracking-tight text-on-background mb-1">Good morning, Sri 👋</h1>
+<p class="text-on-surface-variant font-medium">Monday, Oct 24</p>
+</section>
+<!-- Weekly Calendar Strip -->
+<section class="mb-10 overflow-x-auto pb-2 scrollbar-hide">
+<div class="flex justify-between min-w-max gap-3">
+<!-- Mon -->
+<div class="flex flex-col items-center gap-2 group">
+<span class="text-[11px] font-bold uppercase tracking-widest text-on-surface-variant/60">Mon</span>
+<div class="w-12 h-14 flex items-center justify-center rounded-2xl bg-tertiary text-on-tertiary shadow-lg shadow-tertiary/20">
+<span class="header-font font-bold text-lg">24</span>
+</div>
+</div>
+<!-- Tue -->
+<div class="flex flex-col items-center gap-2">
+<span class="text-[11px] font-bold uppercase tracking-widest text-on-surface-variant/60">Tue</span>
+<div class="w-12 h-14 flex items-center justify-center rounded-2xl bg-surface-container border border-outline-variant/10">
+<span class="header-font font-bold text-lg text-on-surface-variant">25</span>
+</div>
+</div>
+<!-- Wed -->
+<div class="flex flex-col items-center gap-2">
+<span class="text-[11px] font-bold uppercase tracking-widest text-on-surface-variant/60">Wed</span>
+<div class="w-12 h-14 flex items-center justify-center rounded-2xl bg-surface-container border border-outline-variant/10">
+<span class="header-font font-bold text-lg text-on-surface-variant">26</span>
+</div>
+</div>
+<!-- Thu -->
+<div class="flex flex-col items-center gap-2">
+<span class="text-[11px] font-bold uppercase tracking-widest text-on-surface-variant/60">Thu</span>
+<div class="w-12 h-14 flex items-center justify-center rounded-2xl bg-surface-container border border-outline-variant/10">
+<span class="header-font font-bold text-lg text-on-surface-variant">27</span>
+</div>
+</div>
+<!-- Fri -->
+<div class="flex flex-col items-center gap-2">
+<span class="text-[11px] font-bold uppercase tracking-widest text-on-surface-variant/60">Fri</span>
+<div class="w-12 h-14 flex items-center justify-center rounded-2xl bg-surface-container border border-outline-variant/10">
+<span class="header-font font-bold text-lg text-on-surface-variant">28</span>
+</div>
+</div>
+<!-- Sat -->
+<div class="flex flex-col items-center gap-2">
+<span class="text-[11px] font-bold uppercase tracking-widest text-on-surface-variant/60">Sat</span>
+<div class="w-12 h-14 flex items-center justify-center rounded-2xl bg-surface-container border border-outline-variant/10">
+<span class="header-font font-bold text-lg text-on-surface-variant">29</span>
+</div>
+</div>
+<!-- Sun -->
+<div class="flex flex-col items-center gap-2">
+<span class="text-[11px] font-bold uppercase tracking-widest text-on-surface-variant/60">Sun</span>
+<div class="w-12 h-14 flex items-center justify-center rounded-2xl bg-surface-container border border-outline-variant/10">
+<span class="header-font font-bold text-lg text-on-surface-variant">30</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Today's Habits Section -->
+<section class="space-y-4">
+<div class="flex items-center justify-between mb-2">
+<h2 class="header-font text-xl font-bold text-on-surface">Today's Habits</h2>
+<span class="text-sm font-semibold text-tertiary bg-tertiary/10 px-3 py-1 rounded-full">2/4 Done</span>
+</div>
+<!-- Habit Card 1: Completed -->
+<div class="group relative bg-[#F5F2ED] rounded-lg p-5 flex items-center justify-between transition-all hover:translate-y-[-2px] hover:shadow-xl hover:shadow-stone-200/50 border-l-[6px] border-tertiary">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 flex items-center justify-center rounded-2xl bg-white shadow-sm text-2xl">
+                        💧
+                    </div>
+<div>
+<h3 class="header-font font-bold text-on-surface opacity-60 line-through">Drink Water</h3>
+<div class="flex items-center gap-2">
+<span class="text-xs font-semibold bg-tertiary/10 text-tertiary px-2 py-0.5 rounded-full">🔥 12 days</span>
+</div>
+</div>
+</div>
+<div class="relative w-12 h-12 flex items-center justify-center">
+<svg class="absolute inset-0 w-full h-full -rotate-90">
+<circle class="text-stone-200" cx="24" cy="24" fill="transparent" r="20" stroke="currentColor" stroke-width="4"></circle>
+<circle class="text-tertiary" cx="24" cy="24" fill="transparent" r="20" stroke="currentColor" stroke-dasharray="125.6" stroke-dashoffset="0" stroke-width="4"></circle>
+</svg>
+<span class="material-symbols-outlined text-tertiary text-xl font-bold" data-icon="check" style="font-variation-settings: 'wght' 700;">check</span>
+</div>
+</div>
+<!-- Habit Card 2: In Progress -->
+<div class="group relative bg-[#F5F2ED] rounded-lg p-5 flex items-center justify-between transition-all hover:translate-y-[-2px] hover:shadow-xl hover:shadow-stone-200/50 border-l-[6px] border-secondary">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 flex items-center justify-center rounded-2xl bg-white shadow-sm text-2xl">
+                        🧘
+                    </div>
+<div>
+<h3 class="header-font font-bold text-on-surface">Morning Meditation</h3>
+<div class="flex items-center gap-2">
+<span class="text-xs font-semibold bg-secondary/10 text-secondary px-2 py-0.5 rounded-full">🔥 5 days</span>
+</div>
+</div>
+</div>
+<div class="relative w-12 h-12 flex items-center justify-center">
+<svg class="absolute inset-0 w-full h-full -rotate-90">
+<circle class="text-stone-200" cx="24" cy="24" fill="transparent" r="20" stroke="currentColor" stroke-width="4"></circle>
+<circle class="text-secondary" cx="24" cy="24" fill="transparent" r="20" stroke="currentColor" stroke-dasharray="125.6" stroke-dashoffset="30" stroke-width="4"></circle>
+</svg>
+<span class="text-[10px] font-bold text-secondary">75%</span>
+</div>
+</div>
+<!-- Habit Card 3: Completed -->
+<div class="group relative bg-[#F5F2ED] rounded-lg p-5 flex items-center justify-between transition-all hover:translate-y-[-2px] hover:shadow-xl hover:shadow-stone-200/50 border-l-[6px] border-tertiary">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 flex items-center justify-center rounded-2xl bg-white shadow-sm text-2xl">
+                        📖
+                    </div>
+<div>
+<h3 class="header-font font-bold text-on-surface opacity-60 line-through">Read 20 Pages</h3>
+<div class="flex items-center gap-2">
+<span class="text-xs font-semibold bg-tertiary/10 text-tertiary px-2 py-0.5 rounded-full">🔥 28 days</span>
+</div>
+</div>
+</div>
+<div class="relative w-12 h-12 flex items-center justify-center">
+<svg class="absolute inset-0 w-full h-full -rotate-90">
+<circle class="text-stone-200" cx="24" cy="24" fill="transparent" r="20" stroke="currentColor" stroke-width="4"></circle>
+<circle class="text-tertiary" cx="24" cy="24" fill="transparent" r="20" stroke="currentColor" stroke-dasharray="125.6" stroke-dashoffset="0" stroke-width="4"></circle>
+</svg>
+<span class="material-symbols-outlined text-tertiary text-xl font-bold" data-icon="check" style="font-variation-settings: 'wght' 700;">check</span>
+</div>
+</div>
+<!-- Habit Card 4: Not Started -->
+<div class="group relative bg-[#F5F2ED] rounded-lg p-5 flex items-center justify-between transition-all hover:translate-y-[-2px] hover:shadow-xl hover:shadow-stone-200/50 border-l-[6px] border-primary">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 flex items-center justify-center rounded-2xl bg-white shadow-sm text-2xl">
+                        🏃
+                    </div>
+<div>
+<h3 class="header-font font-bold text-on-surface">Evening Run</h3>
+<div class="flex items-center gap-2">
+<span class="text-xs font-semibold bg-primary/10 text-primary px-2 py-0.5 rounded-full">🔥 0 days</span>
+</div>
+</div>
+</div>
+<div class="relative w-12 h-12 flex items-center justify-center">
+<svg class="absolute inset-0 w-full h-full -rotate-90">
+<circle class="text-stone-200" cx="24" cy="24" fill="transparent" r="20" stroke="currentColor" stroke-width="4"></circle>
+<circle class="text-primary" cx="24" cy="24" fill="transparent" r="20" stroke="currentColor" stroke-dasharray="125.6" stroke-dashoffset="125.6" stroke-width="4"></circle>
+</svg>
+<span class="material-symbols-outlined text-stone-400 text-lg" data-icon="play_arrow">play_arrow</span>
+</div>
+</div>
+</section>
+<!-- Bento Stats Preview -->
+<section class="mt-12 mb-8">
+<h2 class="header-font text-xl font-bold text-on-surface mb-6">Weekly Highlights</h2>
+<div class="grid grid-cols-2 gap-4">
+<div class="col-span-1 bg-secondary-container/30 p-6 rounded-lg">
+<span class="material-symbols-outlined text-secondary mb-3" data-icon="bolt">bolt</span>
+<p class="text-2xl font-bold header-font text-on-surface">92%</p>
+<p class="text-sm font-medium text-on-surface-variant">Completion Rate</p>
+</div>
+<div class="col-span-1 bg-primary-container/20 p-6 rounded-lg">
+<span class="material-symbols-outlined text-primary mb-3" data-icon="local_fire_department">local_fire_department</span>
+<p class="text-2xl font-bold header-font text-on-surface">12</p>
+<p class="text-sm font-medium text-on-surface-variant">Longest Streak</p>
+</div>
+<div class="col-span-2 bg-tertiary-container/30 p-6 rounded-lg relative overflow-hidden group">
+<div class="relative z-10">
+<p class="text-sm font-bold uppercase tracking-widest text-on-tertiary-container/60 mb-1">Focus Insight</p>
+<h4 class="header-font text-lg font-bold text-on-surface mb-2">You're most active at 7 AM</h4>
+<p class="text-sm text-on-surface-variant max-w-[200px]">Keep that morning momentum going this week.</p>
+</div>
+<div class="absolute -right-4 -bottom-4 w-24 h-24 bg-tertiary/10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700"></div>
+</div>
+</div>
+</section>
+</main>
+<!-- Floating Action Button -->
+<button class="fixed bottom-28 right-6 w-16 h-16 bg-tertiary text-on-tertiary rounded-full shadow-2xl shadow-tertiary/40 flex items-center justify-center z-50 hover:scale-105 active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-3xl" data-icon="add">add</span>
+</button>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-6 pt-3 bg-[#fffcf7]/80 dark:bg-stone-900/80 backdrop-blur-xl rounded-t-[32px] shadow-[0_-4px_40px_rgba(0,0,0,0.04)]">
+<a class="flex flex-col items-center justify-center bg-[#007353]/10 dark:bg-teal-900/30 text-[#007353] dark:text-teal-300 rounded-full px-5 py-1.5 transition-all duration-300" href="#">
+<span class="material-symbols-outlined" data-icon="home" style="font-variation-settings: 'FILL' 1;">home</span>
+<span class="font-['Inter'] text-[11px] font-medium tracking-wide">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-stone-400 dark:text-stone-500 px-5 py-1.5 hover:text-[#7a37eb]" href="#">
+<span class="material-symbols-outlined" data-icon="leaderboard">leaderboard</span>
+<span class="font-['Inter'] text-[11px] font-medium tracking-wide">Stats</span>
+</a>
+<a class="flex flex-col items-center justify-center text-stone-400 dark:text-stone-500 px-5 py-1.5 hover:text-[#7a37eb]" href="#">
+<span class="material-symbols-outlined" data-icon="add_circle">add_circle</span>
+<span class="font-['Inter'] text-[11px] font-medium tracking-wide">Add</span>
+</a>
+<a class="flex flex-col items-center justify-center text-stone-400 dark:text-stone-500 px-5 py-1.5 hover:text-[#7a37eb]" href="#">
+<span class="material-symbols-outlined" data-icon="book">book</span>
+<span class="font-['Inter'] text-[11px] font-medium tracking-wide">Journal</span>
+</a>
+<a class="flex flex-col items-center justify-center text-stone-400 dark:text-stone-500 px-5 py-1.5 hover:text-[#7a37eb]" href="#">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="font-['Inter'] text-[11px] font-medium tracking-wide">Profile</span>
+</a>
+</nav>
+</body></html>
