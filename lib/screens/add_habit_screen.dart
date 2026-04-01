@@ -226,9 +226,9 @@ class _AddHabitScreenState extends State<AddHabitScreen>
     final accentColor = Color(int.parse(_selectedColor, radix: 16));
 
     return Scaffold(
-      backgroundColor: const Color(0xFF0D0D15),
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF0D0D15),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      app_bar: AppBar(
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         title: Text("New Habit",
             style: GoogleFonts.outfit(fontWeight: FontWeight.bold)),
         leading: IconButton(
@@ -240,7 +240,7 @@ class _AddHabitScreenState extends State<AddHabitScreen>
           indicatorColor: accentColor,
           indicatorWeight: 3,
           labelColor: accentColor,
-          unselectedLabelColor: Colors.white38,
+          unselectedLabelColor: Theme.of(context).colorScheme.onSurface.withOpacity(0.38),
           tabs: [
             Tab(child: Text('✏️ Custom', style: GoogleFonts.outfit(fontSize: 14))),
             Tab(
@@ -281,12 +281,12 @@ class _AddHabitScreenState extends State<AddHabitScreen>
           TextField(
             controller: _nameController,
             onChanged: (_) => setState(() {}),
-            style: GoogleFonts.outfit(color: Colors.white, fontSize: 18),
+            style: GoogleFonts.outfit(color: Theme.of(context).colorScheme.onSurface, fontSize: 18),
             decoration: InputDecoration(
               hintText: "E.g. Morning Meditation",
-              hintStyle: const TextStyle(color: Colors.white24),
+              hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.24)),
               filled: true,
-              fillColor: const Color(0xFF1F1F25),
+              fillColor: Theme.of(context).cardColor,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(20),
                 borderSide: BorderSide.none,
@@ -359,12 +359,12 @@ class _AddHabitScreenState extends State<AddHabitScreen>
                 Text(
                   _nameController.text,
                   style: GoogleFonts.outfit(
-                      fontSize: 16, fontWeight: FontWeight.bold),
+                      fontSize: 16, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface),
                 ),
                 Text(
                   '$_selectedFrequency • ${_startDate != null ? DateFormat('d/M').format(_startDate!) : 'Anytime'}',
                   style:
-                      GoogleFonts.outfit(fontSize: 12, color: Colors.white38),
+                      GoogleFonts.outfit(fontSize: 12, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.38)),
                 ),
               ],
             ),
@@ -432,7 +432,7 @@ class _AddHabitScreenState extends State<AddHabitScreen>
                 style: GoogleFonts.outfit(
                     fontSize: 15,
                     fontWeight: FontWeight.bold,
-                    color: Colors.white),
+                    color: Theme.of(context).colorScheme.onSurface),
               ),
             ),
             Wrap(
@@ -473,7 +473,7 @@ class _AddHabitScreenState extends State<AddHabitScreen>
               template.name,
               style: GoogleFonts.outfit(
                   fontSize: 13,
-                  color: Colors.white70,
+                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
                   fontWeight: FontWeight.w500),
             ),
           ],
@@ -495,11 +495,11 @@ class _AddHabitScreenState extends State<AddHabitScreen>
                   padding: const EdgeInsets.symmetric(
                       vertical: 16, horizontal: 16),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF1F1F25),
+                    color: Theme.of(context).cardColor,
                     borderRadius: BorderRadius.circular(16),
                     border: _startDate != null
                         ? Border.all(color: accentColor.withOpacity(0.5))
-                        : Border.all(color: Colors.white10),
+                        : Border.all(color: Theme.of(context).dividerColor),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -509,13 +509,13 @@ class _AddHabitScreenState extends State<AddHabitScreen>
                           Icon(Icons.calendar_today_outlined,
                               color: _startDate != null
                                   ? accentColor
-                                  : Colors.white38,
+                                  : Theme.of(context).colorScheme.onSurface.withOpacity(0.38),
                               size: 16),
                           const SizedBox(width: 8),
                           Text('Start Date',
                               style: GoogleFonts.outfit(
                                   fontSize: 11,
-                                  color: Colors.white38)),
+                                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.38))),
                         ],
                       ),
                       const SizedBox(height: 6),
@@ -527,8 +527,8 @@ class _AddHabitScreenState extends State<AddHabitScreen>
                           fontSize: 15,
                           fontWeight: FontWeight.w600,
                           color: _startDate != null
-                              ? Colors.white
-                              : Colors.white38,
+                              ? Theme.of(context).colorScheme.onSurface
+                              : Theme.of(context).colorScheme.onSurface.withOpacity(0.38),
                         ),
                       ),
                     ],
@@ -544,11 +544,11 @@ class _AddHabitScreenState extends State<AddHabitScreen>
                   padding: const EdgeInsets.symmetric(
                       vertical: 16, horizontal: 16),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF1F1F25),
+                    color: Theme.of(context).cardColor,
                     borderRadius: BorderRadius.circular(16),
                     border: _endDate != null
                         ? Border.all(color: accentColor.withOpacity(0.5))
-                        : Border.all(color: Colors.white10),
+                        : Border.all(color: Theme.of(context).dividerColor),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -557,12 +557,12 @@ class _AddHabitScreenState extends State<AddHabitScreen>
                         children: [
                           Icon(Icons.event_outlined,
                               color:
-                                  _endDate != null ? accentColor : Colors.white38,
+                                  _endDate != null ? accentColor : Theme.of(context).colorScheme.onSurface.withOpacity(0.38),
                               size: 16),
                           const SizedBox(width: 8),
                           Text('End Date',
                               style: GoogleFonts.outfit(
-                                  fontSize: 11, color: Colors.white38)),
+                                  fontSize: 11, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.38))),
                         ],
                       ),
                       const SizedBox(height: 6),
@@ -574,8 +574,8 @@ class _AddHabitScreenState extends State<AddHabitScreen>
                           fontSize: 15,
                           fontWeight: FontWeight.w600,
                           color: _endDate != null
-                              ? Colors.white
-                              : Colors.white38,
+                              ? Theme.of(context).colorScheme.onSurface
+                              : Theme.of(context).colorScheme.onSurface.withOpacity(0.38),
                         ),
                       ),
                     ],
@@ -621,7 +621,7 @@ class _AddHabitScreenState extends State<AddHabitScreen>
                 setState(() { _startDate = null; _endDate = null; }),
             child: Text('Clear dates',
                 style: GoogleFonts.outfit(
-                    color: Colors.white38, fontSize: 13)),
+                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.38), fontSize: 13)),
           ),
         ],
       ],
@@ -642,12 +642,12 @@ class _AddHabitScreenState extends State<AddHabitScreen>
                       color: _selectedEmoji == emoji
                           ? Color(int.parse(_selectedColor, radix: 16))
                               .withOpacity(0.1)
-                          : const Color(0xFF1F1F25),
+                          : Theme.of(context).cardColor,
                       borderRadius: BorderRadius.circular(15),
                       border: Border.all(
                           color: _selectedEmoji == emoji
                               ? Color(int.parse(_selectedColor, radix: 16))
-                              : Colors.transparent),
+                              : Theme.of(context).dividerColor),
                     ),
                     child: Text(emoji,
                         style: const TextStyle(fontSize: 24)),
@@ -674,7 +674,7 @@ class _AddHabitScreenState extends State<AddHabitScreen>
               color: color,
               border: Border.all(
                   color: _selectedColor == colorHex
-                      ? Colors.white
+                      ? Theme.of(context).colorScheme.onSurface
                       : Colors.transparent,
                   width: 2),
               boxShadow: _selectedColor == colorHex
@@ -703,7 +703,7 @@ class _AddHabitScreenState extends State<AddHabitScreen>
                         setState(() => _selectedFrequency = freq),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: _selectedFrequency == freq
-                          ? const Color(0xFF1F1F25)
+                          ? Theme.of(context).cardColor
                           : Colors.transparent,
                       elevation: 0,
                       shape: RoundedRectangleBorder(
@@ -739,7 +739,7 @@ class Label extends StatelessWidget {
       style: GoogleFonts.outfit(
         fontSize: 12,
         fontWeight: FontWeight.bold,
-        color: Colors.white38,
+        color: Theme.of(context).colorScheme.onSurface.withOpacity(0.38),
         letterSpacing: 1.2,
       ),
     );

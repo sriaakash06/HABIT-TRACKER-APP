@@ -56,7 +56,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0D0D15),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 40),
@@ -79,14 +79,14 @@ class _LoginScreenState extends State<LoginScreen> {
                   fontSize: 48,
                   height: 1.0,
                   fontWeight: FontWeight.bold,
-                  color: Colors.white,
+                  color: Theme.of(context).colorScheme.onSurface,
                   letterSpacing: -2,
                 ),
               ),
               const SizedBox(height: 12),
               Text(
                 'The premium way to track your habits and build your future self.',
-                style: GoogleFonts.outfit(color: Colors.white38, fontSize: 16),
+                style: GoogleFonts.outfit(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.38), fontSize: 16),
               ),
               const SizedBox(height: 50),
               _buildTextField(_emailController, 'Email Address', Icons.email_outlined),
@@ -109,15 +109,15 @@ class _LoginScreenState extends State<LoginScreen> {
               Center(
                 child: TextButton.icon(
                   onPressed: _isLoading ? null : _handleGoogleLogin,
-                  icon: const Icon(Icons.g_mobiledata_rounded, color: Colors.white38, size: 32),
-                  label: Text('Sign in with Google', style: GoogleFonts.outfit(color: Colors.white38)),
+                  icon: Icon(Icons.g_mobiledata_rounded, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.38), size: 32),
+                  label: Text('Sign in with Google', style: GoogleFonts.outfit(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.38))),
                 ),
               ),
               const SizedBox(height: 40),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text("New user da?", style: GoogleFonts.outfit(color: Colors.white30)),
+                  Text("New user da?", style: GoogleFonts.outfit(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.3))),
                   TextButton(
                     onPressed: () => Navigator.push(
                       context,
@@ -138,13 +138,13 @@ class _LoginScreenState extends State<LoginScreen> {
     return TextField(
       controller: ctrl,
       obscureText: obscure,
-      style: GoogleFonts.outfit(color: Colors.white),
+      style: GoogleFonts.outfit(color: Theme.of(context).colorScheme.onSurface),
       decoration: InputDecoration(
         hintText: hint,
-        prefixIcon: Icon(icon, color: Colors.white24),
-        hintStyle: const TextStyle(color: Colors.white24),
+        prefixIcon: Icon(icon, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.24)),
+        hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.24)),
         filled: true,
-        fillColor: const Color(0xFF1F1F25),
+        fillColor: Theme.of(context).cardColor,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(20),
           borderSide: BorderSide.none,

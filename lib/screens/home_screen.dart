@@ -73,6 +73,7 @@ class _HomeScreenState extends State<HomeScreen> {
         : habits.where((h) => _isCompletedOn(h, _selectedDate)).length;
 
     return Scaffold(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: Column(
           children: [
@@ -101,7 +102,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               style: GoogleFonts.outfit(
                                 fontSize: 18,
                                 fontWeight: FontWeight.w600,
-                                color: Colors.white,
+                                color: Theme.of(context).colorScheme.onSurface,
                               ),
                             ),
                             if (!isViewingToday && !isFutureSelected)
@@ -124,9 +125,9 @@ class _HomeScreenState extends State<HomeScreen> {
                           isFutureSelected
                               ? "${habits.length} Habits"
                               : "$completedOnSelected/${habits.length} Done",
-                          style: GoogleFonts.outfit(
+                            style: GoogleFonts.outfit(
                             fontSize: 14,
-                            color: Colors.white60,
+                            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                           ),
                         ),
                       ],
@@ -176,11 +177,11 @@ class _HomeScreenState extends State<HomeScreen> {
             },
             child: CircleAvatar(
               radius: 25,
-              backgroundColor: const Color(0xFF1F1F25),
+              backgroundColor: Theme.of(context).cardColor,
               child: Text(
                 name.isNotEmpty ? name[0] : 'U',
-                style: const TextStyle(
-                    color: Colors.white,
+                style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
                     fontSize: 18,
                     fontWeight: FontWeight.bold),
               ),
@@ -195,14 +196,14 @@ class _HomeScreenState extends State<HomeScreen> {
                 style: GoogleFonts.outfit(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  color: Colors.white,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
               Text(
                 DateFormat('EEEE, MMM d').format(DateTime.now()),
                 style: GoogleFonts.outfit(
                   fontSize: 14,
-                  color: Colors.white38,
+                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.38),
                 ),
               ),
             ],
@@ -222,14 +223,14 @@ class _HomeScreenState extends State<HomeScreen> {
               final confirm = await showDialog<bool>(
                 context: context,
                 builder: (ctx) => AlertDialog(
-                  backgroundColor: const Color(0xFF1F1F25),
+                  backgroundColor: Theme.of(context).cardColor,
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20)),
                   title: Text('Log Out',
                       style: GoogleFonts.outfit(
-                          color: Colors.white, fontWeight: FontWeight.bold)),
+                          color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold)),
                   content: Text('Are you sure you want to log out?',
-                      style: GoogleFonts.outfit(color: Colors.white60)),
+                      style: GoogleFonts.outfit(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6))),
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.pop(ctx, false),
@@ -312,7 +313,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           ? const Color(0xFF1D9E75)
                           : isToday
                               ? const Color(0xFF1D9E75)
-                              : Colors.white24,
+                              : Theme.of(context).colorScheme.onSurface.withOpacity(0.24),
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -333,7 +334,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ? const Color(0xFF1D9E75).withOpacity(0.5)
                                   : isFuture
                                       ? const Color(0xFF7C3AED).withOpacity(0.2)
-                                      : Colors.white10),
+                                      : Theme.of(context).dividerColor),
                     ),
                     child: Text(
                       date.day.toString(),
@@ -342,10 +343,10 @@ class _HomeScreenState extends State<HomeScreen> {
                         color: isSelected
                             ? Colors.white
                             : isPast
-                                ? Colors.white38
+                                ? Theme.of(context).colorScheme.onSurface.withOpacity(0.38)
                                 : isFuture
                                     ? const Color(0xFF7C3AED).withOpacity(0.7)
-                                    : Colors.white60,
+                                    : Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                         fontWeight:
                             isSelected ? FontWeight.bold : FontWeight.normal,
                       ),
@@ -373,7 +374,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: const Color(0xFF1F1F25),
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(24),
         border: isFuture
             ? Border.all(color: const Color(0xFF7C3AED).withOpacity(0.3))
@@ -408,14 +409,14 @@ class _HomeScreenState extends State<HomeScreen> {
                   style: GoogleFonts.outfit(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      color: isFuture ? const Color(0xFF7C3AED) : Colors.white),
+                      color: isFuture ? const Color(0xFF7C3AED) : Theme.of(context).colorScheme.onSurface),
                 ),
                 Text(
                   isFuture
                       ? 'All $total habits planned for this day'
                       : 'Completed $completedOnSelected of $total habits',
                   style:
-                      GoogleFonts.outfit(fontSize: 13, color: Colors.white38),
+                      GoogleFonts.outfit(fontSize: 13, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.38)),
                 ),
                 Text(
                   DateFormat('d MMM yyyy').format(_selectedDate),
@@ -440,13 +441,13 @@ class _HomeScreenState extends State<HomeScreen> {
           CircularProgressIndicator(
             value: percent,
             strokeWidth: 6,
-            backgroundColor: Colors.white10,
+            backgroundColor: Theme.of(context).dividerColor,
             valueColor:
                 const AlwaysStoppedAnimation<Color>(Color(0xFF1D9E75)),
           ),
           Text(label,
-              style: const TextStyle(
-                  fontSize: 14, fontWeight: FontWeight.bold)),
+              style: TextStyle(
+                  fontSize: 14, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface)),
         ],
       ),
     );
@@ -473,7 +474,7 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: const Color(0xFF1F1F25),
+          color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(20),
           border: isFutureDate
               ? Border.all(color: const Color(0xFF7C3AED).withOpacity(0.2))
@@ -502,6 +503,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     style: GoogleFonts.outfit(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
+                      color: Theme.of(context).colorScheme.onSurface,
                       decoration: isCompleted
                           ? TextDecoration.lineThrough
                           : null,
@@ -515,14 +517,14 @@ class _HomeScreenState extends State<HomeScreen> {
                       Text(
                         '${habit.streak} days',
                         style: GoogleFonts.outfit(
-                            fontSize: 12, color: Colors.white38),
+                            fontSize: 12, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.38)),
                       ),
                       if (habit.endDate != null) ...[
                         const SizedBox(width: 8),
                         Text(
                           '• ends ${DateFormat('d/M').format(habit.endDate!)}',
                           style: GoogleFonts.outfit(
-                              fontSize: 11, color: Colors.white24),
+                              fontSize: 11, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.24)),
                         ),
                       ],
                     ],
@@ -532,9 +534,9 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             // CRUD popup menu
             PopupMenuButton<String>(
-              icon: const Icon(Icons.more_vert,
-                  color: Colors.white38, size: 20),
-              color: const Color(0xFF1F1F25),
+              icon: Icon(Icons.more_vert,
+                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.38), size: 20),
+              color: Theme.of(context).cardColor,
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16)),
               padding: EdgeInsets.zero,
@@ -554,7 +556,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           color: Color(0xFF1D9E75), size: 20),
                       const SizedBox(width: 10),
                       Text('Edit',
-                          style: GoogleFonts.outfit(color: Colors.white)),
+                          style: GoogleFonts.outfit(color: Theme.of(context).colorScheme.onSurface)),
                     ],
                   ),
                 ),
@@ -593,7 +595,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ? const Color(0xFF7C3AED).withOpacity(0.3)
                         : isCompleted
                             ? Colors.transparent
-                            : Colors.white10,
+                            : Theme.of(context).dividerColor,
                     width: 2,
                   ),
                 ),

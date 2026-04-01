@@ -20,12 +20,17 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
   Widget build(BuildContext context) {
     final habitProvider = Provider.of<HabitProvider>(context);
     final habits = habitProvider.habits;
+    final theme = Theme.of(context);
 
     return Scaffold(
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        title: Text("My Progress", style: GoogleFonts.outfit(fontWeight: FontWeight.bold)),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        title: Text("My Progress", 
+          style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: theme.colorScheme.onSurface)),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+          icon: Icon(Icons.arrow_back, color: theme.colorScheme.onSurface),
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -38,17 +43,29 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
             const SizedBox(height: 30),
             Text(
               "Contribution Grid 👋",
-              style: GoogleFonts.outfit(fontSize: 18, fontWeight: FontWeight.bold),
+              style: GoogleFonts.outfit(
+                fontSize: 18, 
+                fontWeight: FontWeight.bold,
+                color: theme.colorScheme.onSurface
+              ),
             ),
             const SizedBox(height: 12),
             _buildGitHubHeatmap(habits),
             const SizedBox(height: 30),
             Text(
               "Habit Breakdowns",
-              style: GoogleFonts.outfit(fontSize: 18, fontWeight: FontWeight.bold),
+              style: GoogleFonts.outfit(
+                fontSize: 18, 
+                fontWeight: FontWeight.bold,
+                color: theme.colorScheme.onSurface
+              ),
             ),
             const SizedBox(height: 15),
-            ...habits.map((habit) => _buildHabitBreakdown(habit)),
+            habits.isEmpty 
+              ? Center(child: Text("No habits to analyze da!", style: GoogleFonts.outfit(color: theme.colorScheme.onSurface.withOpacity(0.5))))
+              : Column(
+                  children: habits.map((habit) => _buildHabitBreakdown(habit)).toList(),
+                ),
             const SizedBox(height: 20),
           ],
         ),
@@ -59,12 +76,14 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
   Widget _buildProgressSummary(List<Habit> habits) {
     if (habits.isEmpty) return const SizedBox.shrink();
     final double avgRate = habits.isEmpty ? 0.0 : (habits.fold(0.0, (sum, h) => sum + h.completionRate) / habits.length);
+    final theme = Theme.of(context);
 
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: const Color(0xFF1F1F25),
+        color: theme.cardColor,
         borderRadius: BorderRadius.circular(30),
+        border: Border.all(color: theme.dividerColor, width: 0.5),
       ),
       child: Column(
         children: [
@@ -89,6 +108,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
   }
 
   Widget _buildLargeProgressRing(double percent) {
+    final theme = Theme.of(context);
     return SizedBox(
       height: 160,
       width: 160,
@@ -101,7 +121,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
             child: CircularProgressIndicator(
               value: percent,
               strokeWidth: 12,
-              backgroundColor: Colors.white10,
+              backgroundColor: theme.colorScheme.onSurface.withOpacity(0.05),
               valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF1D9E75)),
             ),
           ),
@@ -110,11 +130,19 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
             children: [
               Text(
                 "${(percent * 100).toInt()}%",
-                style: GoogleFonts.outfit(fontSize: 32, fontWeight: FontWeight.bold),
+                style: GoogleFonts.outfit(
+                  fontSize: 32, 
+                  fontWeight: FontWeight.bold,
+                  color: theme.colorScheme.onSurface
+                ),
               ),
               Text(
                 "AVERAGE",
-                style: GoogleFonts.outfit(fontSize: 12, color: Colors.white38, letterSpacing: 1.2),
+                style: GoogleFonts.outfit(
+                  fontSize: 12, 
+                  color: theme.colorScheme.onSurface.withOpacity(0.4), 
+                  letterSpacing: 1.2
+                ),
               ),
             ],
           ),
@@ -124,16 +152,18 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
   }
 
   Widget _buildInfoStat(String label, String value, Color color) {
+    final theme = Theme.of(context);
     return Column(
       children: [
         Text(value, style: GoogleFonts.outfit(fontSize: 20, fontWeight: FontWeight.bold, color: color)),
-        Text(label, style: GoogleFonts.outfit(fontSize: 12, color: Colors.white38)),
+        Text(label, style: GoogleFonts.outfit(fontSize: 12, color: theme.colorScheme.onSurface.withOpacity(0.4))),
       ],
     );
   }
 
   Widget _buildGitHubHeatmap(List<Habit> habits) {
     final now = DateTime.now();
+    final theme = Theme.of(context);
     // Calculate the displayed month based on offset
     final displayedMonth = DateTime(now.year, now.month + _monthOffset, 1);
     final firstDay = DateTime(displayedMonth.year, displayedMonth.month, 1);
@@ -148,14 +178,15 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
       }
     }
 
-    final monthLabel = DateFormat('M/yyyy').format(displayedMonth);
+    final monthLabel = DateFormat('MMMM yyyy').format(displayedMonth);
     final isCurrentMonth = _monthOffset == 0;
 
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFF1F1F25),
+        color: theme.cardColor,
         borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: theme.dividerColor, width: 0.5),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -165,7 +196,12 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
             children: [
               Text(
                 "ACTIVITY HEATMAP",
-                style: GoogleFonts.outfit(fontSize: 12, color: Colors.white38, fontWeight: FontWeight.bold, letterSpacing: 1.2),
+                style: GoogleFonts.outfit(
+                  fontSize: 12, 
+                  color: theme.colorScheme.onSurface.withOpacity(0.4), 
+                  fontWeight: FontWeight.bold, 
+                  letterSpacing: 1.2
+                ),
               ),
               // Month navigation
               Row(
@@ -176,17 +212,17 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                     child: Container(
                       padding: const EdgeInsets.all(4),
                       decoration: BoxDecoration(
-                        color: Colors.white10,
+                        color: theme.colorScheme.onSurface.withOpacity(0.05),
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      child: const Icon(Icons.chevron_left, color: Colors.white54, size: 18),
+                      child: Icon(Icons.chevron_left, color: theme.colorScheme.onSurface.withOpacity(0.6), size: 18),
                     ),
                   ),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 10),
                     child: Text(
                       monthLabel,
-                      style: GoogleFonts.outfit(fontSize: 12, color: Colors.white60, fontWeight: FontWeight.w600),
+                      style: GoogleFonts.outfit(fontSize: 12, color: theme.colorScheme.onSurface.withOpacity(0.8), fontWeight: FontWeight.w600),
                     ),
                   ),
                   // Next month button (disabled if current month)
@@ -195,12 +231,12 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                     child: Container(
                       padding: const EdgeInsets.all(4),
                       decoration: BoxDecoration(
-                        color: isCurrentMonth ? Colors.transparent : Colors.white10,
+                        color: isCurrentMonth ? Colors.transparent : theme.colorScheme.onSurface.withOpacity(0.05),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Icon(
                         Icons.chevron_right,
-                        color: isCurrentMonth ? Colors.white24 : Colors.white54,
+                        color: isCurrentMonth ? theme.colorScheme.onSurface.withOpacity(0.2) : theme.colorScheme.onSurface.withOpacity(0.6),
                         size: 18,
                       ),
                     ),
@@ -239,15 +275,15 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                       : const Color(0xFF1D9E75).withOpacity(opacity),
                   borderRadius: BorderRadius.circular(4),
                   border: isFuture
-                      ? Border.all(color: Colors.white.withOpacity(0.05))
-                      : (count == 0 ? Border.all(color: Colors.white.withOpacity(0.05)) : null),
+                      ? Border.all(color: theme.dividerColor.withOpacity(0.2))
+                      : (count == 0 ? Border.all(color: theme.dividerColor.withOpacity(0.2)) : null),
                 ),
                 child: Center(
                   child: Text(
                     "${date.day}",
                     style: GoogleFonts.outfit(
                       fontSize: 10,
-                      color: isFuture || count == 0 ? Colors.white10 : Colors.white70,
+                      color: isFuture || count == 0 ? theme.colorScheme.onSurface.withOpacity(0.1) : Colors.white70,
                     ),
                   ),
                 ),
@@ -260,28 +296,47 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
   }
 
   Widget _buildHabitBreakdown(Habit habit) {
+    final theme = Theme.of(context);
     final color = Color(int.parse(habit.color, radix: 16));
-    final completionRate = habit.completionRate;
     final now = DateTime.now();
     
-    String progressText = "${(completionRate * 100).toInt()}% consistency";
+    // Date to date logic refinement
     int totalDaysInRange = -1;
     int completedInRange = 0;
+    String dateRangeText = "Individual Progress";
 
     if (habit.startDate != null && habit.endDate != null) {
-      totalDaysInRange = habit.endDate!.difference(habit.startDate!).inDays + 1;
-      completedInRange = habit.completionDates.where((d) => 
-        !d.isBefore(habit.startDate!) && !d.isAfter(habit.endDate!)
-      ).length;
-      progressText = "$completedInRange / $totalDaysInRange days";
+      // Calculate progress relative to the range
+      final rangeStart = habit.startDate!;
+      final rangeEnd = habit.endDate!;
+      
+      totalDaysInRange = rangeEnd.difference(rangeStart).inDays + 1;
+      
+      completedInRange = habit.completionDates.where((d) {
+        final date = DateTime(d.year, d.month, d.day);
+        final start = DateTime(rangeStart.year, rangeStart.month, rangeStart.day);
+        final end = DateTime(rangeEnd.year, rangeEnd.month, rangeEnd.day);
+        return !date.isBefore(start) && !date.isAfter(end);
+      }).length;
+
+      dateRangeText = '${DateFormat('MMM d').format(rangeStart)} - ${DateFormat('MMM d, y').format(rangeEnd)}';
     }
+
+    final double displayProgress = totalDaysInRange != -1 
+        ? (completedInRange / totalDaysInRange).clamp(0.0, 1.0) 
+        : habit.completionRate;
+    
+    final String progressStat = totalDaysInRange != -1 
+        ? "$completedInRange / $totalDaysInRange days" 
+        : "${(displayProgress * 100).toInt()}% efficiency";
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFF1F1F25),
+        color: theme.cardColor,
         borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: theme.dividerColor, width: 0.5),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -289,12 +344,12 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(8),
+                padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
                   color: color.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Text(habit.emoji, style: const TextStyle(fontSize: 18)),
+                child: Text(habit.emoji, style: const TextStyle(fontSize: 20)),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -302,38 +357,43 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(habit.name, 
-                      style: GoogleFonts.outfit(fontWeight: FontWeight.w600, fontSize: 15)),
-                    if (habit.startDate != null && habit.endDate != null)
-                      Text(
-                        '${DateFormat('d/M/yy').format(habit.startDate!)} → ${DateFormat('d/M/yy').format(habit.endDate!)}',
-                        style: GoogleFonts.outfit(fontSize: 11, color: Colors.white38),
-                      ),
+                      style: GoogleFonts.outfit(
+                        fontWeight: FontWeight.bold, 
+                        fontSize: 16,
+                        color: theme.colorScheme.onSurface
+                      )),
+                    Text(
+                      dateRangeText,
+                      style: GoogleFonts.outfit(fontSize: 11, color: theme.colorScheme.onSurface.withOpacity(0.4)),
+                    ),
                   ],
                 ),
               ),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Text(progressText, 
-                    style: GoogleFonts.outfit(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
+                  Text(progressStat, 
+                    style: GoogleFonts.outfit(
+                      color: theme.colorScheme.onSurface, 
+                      fontSize: 14, 
+                      fontWeight: FontWeight.bold
+                    )),
                   if (totalDaysInRange != -1)
-                    Text("${(completionRate * 100).toInt()}% efficiency",
-                      style: GoogleFonts.outfit(color: Colors.white24, fontSize: 10)),
+                    Text("${(displayProgress * 100).toInt()}% towards goal",
+                      style: GoogleFonts.outfit(color: color.withOpacity(0.8), fontSize: 10, fontWeight: FontWeight.w600)),
                 ],
               ),
             ],
           ),
           const SizedBox(height: 16),
-          Stack(
-            children: [
-              LinearProgressIndicator(
-                value: totalDaysInRange != -1 ? (completedInRange / totalDaysInRange) : completionRate,
-                backgroundColor: Colors.white10,
-                valueColor: AlwaysStoppedAnimation<Color>(color),
-                borderRadius: BorderRadius.circular(10),
-                minHeight: 10,
-              ),
-            ],
+          ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: LinearProgressIndicator(
+              value: displayProgress,
+              backgroundColor: theme.colorScheme.onSurface.withOpacity(0.05),
+              valueColor: AlwaysStoppedAnimation<Color>(color),
+              minHeight: 8,
+            ),
           ),
         ],
       ),

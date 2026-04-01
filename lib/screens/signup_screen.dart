@@ -8,7 +8,7 @@ class SignupScreen extends StatefulWidget {
   const SignupScreen({Key? key}) : super(key: key);
 
   @override
-  _SignupScreenState createState() => _SignupScreenState();
+  State<SignupScreen> createState() => _SignupScreenState();
 }
 
 class _SignupScreenState extends State<SignupScreen> {
@@ -35,21 +35,30 @@ class _SignupScreenState extends State<SignupScreen> {
     setState(() => _isLoading = false);
 
     if (error == null) {
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (context) => const HomeScreen()),
-        (route) => false,
-      );
+      if (mounted) {
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => const HomeScreen()),
+          (route) => false,
+        );
+      }
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error)));
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error)));
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: const Color(0xFF0D0D15),
-      appBar: AppBar(backgroundColor: Colors.transparent, elevation: 0),
+      backgroundColor: theme.scaffoldBackgroundColor,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent, 
+        elevation: 0,
+        leading: BackButton(color: theme.colorScheme.onSurface),
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 20),
@@ -60,10 +69,10 @@ class _SignupScreenState extends State<SignupScreen> {
                 width: 80,
                 height: 80,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF1D9E75).withOpacity(0.1),
+                  color: theme.primaryColor.withOpacity(0.1),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.person_add_rounded, size: 40, color: Color(0xFF1D9E75)),
+                child: Icon(Icons.person_add_rounded, size: 40, color: theme.primaryColor),
               ),
               const SizedBox(height: 32),
               Text(
@@ -72,14 +81,14 @@ class _SignupScreenState extends State<SignupScreen> {
                 style: GoogleFonts.outfit(
                   fontSize: 32,
                   fontWeight: FontWeight.bold,
-                  color: Colors.white,
+                  color: theme.colorScheme.onSurface,
                 ),
               ),
               const SizedBox(height: 12),
               Text(
                 'Start your journey to better habits with Trackify.',
                 textAlign: TextAlign.center,
-                style: GoogleFonts.outfit(color: Colors.white38),
+                style: GoogleFonts.outfit(color: theme.colorScheme.onSurface.withOpacity(0.4)),
               ),
               const SizedBox(height: 48),
               _buildTextField(_emailController, 'Email Address', Icons.email_outlined),
@@ -91,14 +100,30 @@ class _SignupScreenState extends State<SignupScreen> {
               ElevatedButton(
                 onPressed: _isLoading ? null : _handleRegister,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF1D9E75),
+                  backgroundColor: theme.primaryColor,
+                  foregroundColor: Colors.white,
                   minimumSize: const Size(double.infinity, 64),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
                   elevation: 0,
                 ),
                 child: _isLoading
-                    ? const CircularProgressIndicator(color: Colors.white)
-                    : Text('Initialize Account', style: GoogleFonts.outfit(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
+                    ? const SizedBox(
+                        height: 24,
+                        width: 24,
+                        child: CircularProgressIndicator(color: Colors.white, strokeWidth: 3),
+                      )
+                    : Text('Initialize Account', style: GoogleFonts.outfit(fontSize: 18, fontWeight: FontWeight.bold)),
+              ),
+              const SizedBox(height: 24),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text("Already a member?", style: GoogleFonts.outfit(color: theme.colorScheme.onSurface.withOpacity(0.4))),
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: Text("Sign In", style: GoogleFonts.outfit(color: theme.primaryColor, fontWeight: FontWeight.bold)),
+                  ),
+                ],
               ),
             ],
           ),
@@ -108,19 +133,28 @@ class _SignupScreenState extends State<SignupScreen> {
   }
 
   Widget _buildTextField(TextEditingController ctrl, String hint, IconData icon, {bool obscure = false}) {
+    final theme = Theme.of(context);
     return TextField(
       controller: ctrl,
       obscureText: obscure,
-      style: GoogleFonts.outfit(color: Colors.white),
+      style: GoogleFonts.outfit(color: theme.colorScheme.onSurface),
       decoration: InputDecoration(
         hintText: hint,
-        prefixIcon: Icon(icon, color: Colors.white24),
-        hintStyle: const TextStyle(color: Colors.white24),
+        prefixIcon: Icon(icon, color: theme.colorScheme.onSurface.withOpacity(0.2)),
+        hintStyle: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.2)),
         filled: true,
-        fillColor: const Color(0xFF1F1F25),
+        fillColor: theme.cardColor,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(20),
           borderSide: BorderSide.none,
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(20),
+          borderSide: BorderSide(color: theme.dividerColor.withOpacity(0.1), width: 1),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(20),
+          borderSide: BorderSide(color: theme.primaryColor, width: 2),
         ),
         contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
       ),

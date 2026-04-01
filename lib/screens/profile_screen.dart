@@ -30,7 +30,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final now = DateTime.now();
     List<int> data = List.filled(7, 0);
     for (int i = 0; i < 7; i++) {
-      final d = now.subtract(Duration(days: 6 - i));
+      final d = DateTime(now.year, now.month, now.day).subtract(Duration(days: 6 - i));
       data[i] = habits.where((h) => h.completionDates.any((cd) =>
           cd.year == d.year && cd.month == d.month && cd.day == d.day)).length;
     }
@@ -156,91 +156,131 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final user = authProvider.user;
     final habitProvider = Provider.of<HabitProvider>(context);
     final themeProvider = Provider.of<ThemeProvider>(context);
+    final theme = Theme.of(context);
     final habits = habitProvider.habits;
 
     final chartData = _getLast7DaysData(habits);
     final double maxY = chartData.isEmpty ? 5.0 : (chartData.reduce((a, b) => a > b ? a : b) + 2).toDouble();
 
     return Scaffold(
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        title: Text('Profile & Analytics', style: GoogleFonts.outfit(fontWeight: FontWeight.bold)),
+        title: Text('Profile & Analytics', 
+          style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: theme.colorScheme.onSurface)),
         backgroundColor: Colors.transparent,
         elevation: 0,
+        leading: BackButton(color: theme.colorScheme.onSurface),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               // Profile Section
               CircleAvatar(
-                radius: 50,
-                backgroundColor: const Color(0xFF1D9E75).withOpacity(0.2),
-                child: Text(
-                  user?.displayName?.isNotEmpty == true ? user!.displayName![0].toUpperCase() : 'U',
-                  style: GoogleFonts.outfit(
-                    fontSize: 40,
-                    fontWeight: FontWeight.bold,
-                    color: const Color(0xFF1D9E75),
+                radius: 54,
+                backgroundColor: theme.primaryColor.withOpacity(0.1),
+                child: CircleAvatar(
+                  radius: 50,
+                  backgroundColor: theme.primaryColor.withOpacity(0.2),
+                  child: Text(
+                    user?.displayName?.isNotEmpty == true ? user!.displayName![0].toUpperCase() : 'U',
+                    style: GoogleFonts.outfit(
+                      fontSize: 44,
+                      fontWeight: FontWeight.bold,
+                      color: theme.primaryColor,
+                    ),
                   ),
                 ),
               ),
-              const SizedBox(height: 15),
+              const SizedBox(height: 20),
               Text(
                 user?.displayName ?? 'User Name',
-                style: GoogleFonts.outfit(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
+                style: GoogleFonts.outfit(fontSize: 26, fontWeight: FontWeight.bold, color: theme.colorScheme.onSurface),
               ),
-              const SizedBox(height: 5),
+              const SizedBox(height: 4),
               Text(
                 user?.email ?? 'user@example.com',
-                style: GoogleFonts.outfit(fontSize: 14, color: Colors.white60),
+                style: GoogleFonts.outfit(fontSize: 14, color: theme.colorScheme.onSurface.withOpacity(0.5)),
               ),
-              const SizedBox(height: 30),
+              const SizedBox(height: 35),
 
               // Theme Toggle
               Container(
-                margin: const EdgeInsets.symmetric(horizontal: 10),
                 decoration: BoxDecoration(
-                  color: Theme.of(context).cardTheme.color,
-                  borderRadius: BorderRadius.circular(20),
+                  color: theme.cardColor,
+                  borderRadius: BorderRadius.circular(24),
+                  border: Border.all(color: theme.dividerColor, width: 0.5),
                 ),
                 child: SwitchListTile(
                   title: Text(
                     'Dark Mode',
-                    style: GoogleFonts.outfit(fontWeight: FontWeight.w600),
+                    style: GoogleFonts.outfit(fontWeight: FontWeight.w600, color: theme.colorScheme.onSurface),
                   ),
-                  secondary: Icon(
-                    themeProvider.isDarkMode ? Icons.dark_mode : Icons.light_mode,
-                    color: Theme.of(context).primaryColor,
+                  subtitle: Text(
+                    themeProvider.isDarkMode ? "On" : "Off",
+                    style: GoogleFonts.outfit(fontSize: 12, color: theme.colorScheme.onSurface.withOpacity(0.4)),
+                  ),
+                  secondary: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: theme.primaryColor.withOpacity(0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      themeProvider.isDarkMode ? Icons.dark_mode_rounded : Icons.light_mode_rounded,
+                      color: theme.primaryColor,
+                      size: 20,
+                    ),
                   ),
                   value: themeProvider.isDarkMode,
                   onChanged: (value) => themeProvider.toggleTheme(),
+                  activeColor: theme.primaryColor,
                 ),
               ),
 
-              const SizedBox(height: 20),
+              const SizedBox(height: 24),
               Container(
-                padding: const EdgeInsets.all(20),
+                padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF1F1F25),
-                  borderRadius: BorderRadius.circular(20),
+                  color: theme.cardColor,
+                  borderRadius: BorderRadius.circular(24),
+                  border: Border.all(color: theme.dividerColor, width: 0.5),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'Last 7 Days',
-                      style: GoogleFonts.outfit(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Last 7 Days',
+                          style: GoogleFonts.outfit(fontSize: 20, fontWeight: FontWeight.bold, color: theme.colorScheme.onSurface),
+                        ),
+                        Icon(Icons.bar_chart_rounded, color: theme.primaryColor, size: 24),
+                      ],
                     ),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 30),
                     SizedBox(
                       height: 200,
                       child: BarChart(
                         BarChartData(
                           alignment: BarChartAlignment.spaceAround,
                           maxY: maxY,
-                          barTouchData: BarTouchData(enabled: false),
+                          barTouchData: BarTouchData(
+                            enabled: true,
+                            touchTooltipData: BarTouchTooltipData(
+                              getTooltipColor: (_) => theme.primaryColor,
+                              tooltipRoundedRadius: 8,
+                              getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                                return BarTooltipItem(
+                                  rod.toY.toInt().toString(),
+                                  GoogleFonts.outfit(color: Colors.white, fontWeight: FontWeight.bold),
+                                );
+                              },
+                            ),
+                          ),
                           titlesData: FlTitlesData(
                             show: true,
                             bottomTitles: AxisTitles(
@@ -249,20 +289,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 getTitlesWidget: (value, meta) {
                                   final d = DateTime.now().subtract(Duration(days: 6 - value.toInt()));
                                   return Padding(
-                                    padding: const EdgeInsets.only(top: 8.0),
+                                    padding: const EdgeInsets.only(top: 10.0),
                                     child: Text(
                                       DateFormat('E').format(d)[0],
-                                      style: GoogleFonts.outfit(color: Colors.white60, fontSize: 12),
+                                      style: GoogleFonts.outfit(
+                                        color: theme.colorScheme.onSurface.withOpacity(0.4), 
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.bold),
                                     ),
                                   );
                                 },
                               ),
                             ),
-                            leftTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                            topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                            rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                            leftTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                            topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                            rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
                           ),
-                          gridData: FlGridData(show: false),
+                          gridData: const FlGridData(show: false),
                           borderData: FlBorderData(show: false),
                           barGroups: List.generate(7, (index) {
                             return BarChartGroupData(
@@ -270,13 +313,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               barRods: [
                                 BarChartRodData(
                                   toY: chartData[index].toDouble(),
-                                  color: const Color(0xFF1D9E75),
-                                  width: 16,
-                                  borderRadius: BorderRadius.circular(4),
+                                  color: theme.primaryColor,
+                                  width: 14,
+                                  borderRadius: const BorderRadius.vertical(top: Radius.circular(6)),
                                   backDrawRodData: BackgroundBarChartRodData(
                                     show: true,
                                     toY: maxY,
-                                    color: Colors.white10,
+                                    color: theme.colorScheme.onSurface.withOpacity(0.05),
                                   ),
                                 ),
                               ],
@@ -296,12 +339,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   Expanded(
                     child: ElevatedButton.icon(
                       onPressed: _isExporting ? null : () => _exportPdf(habits, chartData),
-                      icon: const Icon(Icons.picture_as_pdf, color: Colors.white),
-                      label: Text('Export PDF', style: GoogleFonts.outfit(color: Colors.white)),
+                      icon: const Icon(Icons.picture_as_pdf, color: Colors.white, size: 20),
+                      label: Text('PDF', style: GoogleFonts.outfit(color: Colors.white, fontWeight: FontWeight.bold)),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFFEF4444),
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                        padding: const EdgeInsets.symmetric(vertical: 18),
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
                       ),
                     ),
                   ),
@@ -309,43 +353,47 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   Expanded(
                     child: ElevatedButton.icon(
                       onPressed: _isExporting ? null : () => _exportExcel(habits, chartData),
-                      icon: const Icon(Icons.table_chart, color: Colors.white),
-                      label: Text('Export Excel', style: GoogleFonts.outfit(color: Colors.white)),
+                      icon: const Icon(Icons.table_chart_rounded, color: Colors.white, size: 20),
+                      label: Text('EXCEL', style: GoogleFonts.outfit(color: Colors.white, fontWeight: FontWeight.bold)),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF10B981),
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                        padding: const EdgeInsets.symmetric(vertical: 18),
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
                       ),
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 30),
+              const SizedBox(height: 35),
 
               // Logout Button
               SizedBox(
                 width: double.infinity,
-                child: OutlinedButton.icon(
+                child: TextButton.icon(
                   onPressed: () async {
                     final confirm = await showDialog<bool>(
                       context: context,
                       builder: (ctx) => AlertDialog(
-                        backgroundColor: const Color(0xFF1F1F25),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                        title: Text('Log Out', style: GoogleFonts.outfit(color: Colors.white, fontWeight: FontWeight.bold)),
-                        content: Text('Are you sure you want to log out?', style: GoogleFonts.outfit(color: Colors.white60)),
+                        backgroundColor: theme.cardColor,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+                        title: Text('Log Out', style: GoogleFonts.outfit(color: theme.colorScheme.onSurface, fontWeight: FontWeight.bold)),
+                        content: Text('Are you sure da? You\'ll be signed out.', 
+                          style: GoogleFonts.outfit(color: theme.colorScheme.onSurface.withOpacity(0.6))),
                         actions: [
                           TextButton(
                             onPressed: () => Navigator.pop(ctx, false),
-                            child: Text('Cancel', style: GoogleFonts.outfit(color: Colors.white38)),
+                            child: Text('Cancel', style: GoogleFonts.outfit(color: theme.colorScheme.onSurface.withOpacity(0.4))),
                           ),
                           ElevatedButton(
                             onPressed: () => Navigator.pop(ctx, true),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.redAccent,
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                              backgroundColor: Colors.redAccent.withOpacity(0.1),
+                              foregroundColor: Colors.redAccent,
+                              elevation: 0,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                             ),
-                            child: Text('Log Out', style: GoogleFonts.outfit(color: Colors.white)),
+                            child: Text('Log Out', style: GoogleFonts.outfit(fontWeight: FontWeight.bold)),
                           ),
                         ],
                       ),
@@ -362,15 +410,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       }
                     }
                   },
-                  icon: const Icon(Icons.logout, color: Colors.redAccent),
-                  label: Text('Log Out', style: GoogleFonts.outfit(color: Colors.redAccent, fontWeight: FontWeight.bold)),
-                  style: OutlinedButton.styleFrom(
-                    side: const BorderSide(color: Colors.redAccent),
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  icon: const Icon(Icons.logout_rounded, color: Colors.redAccent),
+                  label: Text('LOG OUT', style: GoogleFonts.outfit(color: Colors.redAccent, fontWeight: FontWeight.bold, letterSpacing: 1.2)),
+                  style: TextButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 20),
                   ),
                 ),
               ),
+              const SizedBox(height: 20),
             ],
           ),
         ),

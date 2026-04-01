@@ -8,6 +8,7 @@ import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../providers/habit_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class ZaraChatScreen extends StatefulWidget {
   const ZaraChatScreen({super.key});
@@ -22,61 +23,74 @@ class _ZaraChatScreenState extends State<ZaraChatScreen>
   final ScrollController _scrollCtrl = ScrollController();
   final List<_ChatMessage> _messages = [];
   bool _zaraTyping = false;
-  bool _isLoading = true;
+  bool _isLoading = false;
+  String? _currentSessionId;
+  String _sessionTitle = "New Chat";
+  bool _isFirstLoad = true;
+
   final _auth = FirebaseAuth.instance;
   final _firestore = FirebaseFirestore.instance;
-
-  // Quick reply suggestions
-  final List<String> _suggestions = [
-    "How am I doing today? 📊",
-    "Motivate me da! 💪",
-    "My streak status 🔥",
-    "Add a new habit ➕",
-  ];
 
   @override
   void initState() {
     super.initState();
-    _loadChatHistory();
+    _createNewSession();
   }
 
-  Future<void> _loadChatHistory() async {
+  void _createNewSession() {
+    setState(() {
+      _currentSessionId = DateTime.now().millisecondsSinceEpoch.toString();
+      _messages.clear();
+      _sessionTitle = "New Chat";
+      _isFirstLoad = true;
+      _addZaraMessage(
+          "Vanakkam da! 👋 I'm Zara, your habit coach. How can I help you today?",
+          saveToDb: false);
+    });
+  }
+
+  Future<void> _loadSession(String sessionId, String title) async {
     final user = _auth.currentUser;
     if (user == null) return;
+
+    setState(() {
+      _isLoading = true;
+      _currentSessionId = sessionId;
+      _sessionTitle = title;
+      _messages.clear();
+      _isFirstLoad = false;
+    });
 
     try {
       final snapshot = await _firestore
           .collection('users')
           .doc(user.uid)
-          .collection('chats')
+          .collection('sessions')
+          .doc(sessionId)
+          .collection('messages')
           .orderBy('timestamp', descending: false)
           .get();
 
-      if (snapshot.docs.isEmpty) {
-        // Initial greeting if history is empty
-        _addZaraMessage(
-            "Vanakkam da! 👋 I'm Zara!\n\nI'm here to help you build better habits and stay consistent. Ko sollu — what's on your mind today? 😊",
-            saveToDb: true);
-      } else {
-        setState(() {
-          _messages.addAll(snapshot.docs.map((doc) => _ChatMessage(
-                text: doc['text'],
-                isUser: doc['isUser'],
-                timestamp: (doc['timestamp'] as Timestamp).toDate(),
-              )));
-          _isLoading = false;
-        });
-        _scrollToBottom();
-      }
+      setState(() {
+        _messages.addAll(snapshot.docs.map((doc) => _ChatMessage(
+              text: doc['text'],
+              isUser: doc['isUser'],
+              timestamp: (doc['timestamp'] as Timestamp).toDate(),
+            )));
+        _isLoading = false;
+      });
+      _scrollToBottom();
     } catch (e) {
-      debugPrint("Error loading chat: $e");
+      debugPrint("Error loading session: $e");
       setState(() => _isLoading = false);
     }
   }
 
-  void _addZaraMessage(String text, {bool saveToDb = false}) async {
-    setState(() => _zaraTyping = true);
-    await Future.delayed(const Duration(milliseconds: 1200));
+  void _addZaraMessage(String text, {bool saveToDb = true}) async {
+    if (saveToDb) {
+      setState(() => _zaraTyping = true);
+      await Future.delayed(const Duration(milliseconds: 1000));
+    }
     if (!mounted) return;
 
     final msg = _ChatMessage(text: text, isUser: false, timestamp: DateTime.now());
@@ -84,23 +98,43 @@ class _ZaraChatScreenState extends State<ZaraChatScreen>
     setState(() {
       _zaraTyping = false;
       _messages.add(msg);
-      _isLoading = false;
     });
     _scrollToBottom();
 
-    if (saveToDb) {
+    if (saveToDb && _currentSessionId != null) {
       _saveMessageToDb(msg);
     }
   }
 
   Future<void> _saveMessageToDb(_ChatMessage msg) async {
     final user = _auth.currentUser;
-    if (user == null) return;
+    if (user == null || _currentSessionId == null) return;
+
+    bool isNew = _sessionTitle == "New Chat";
+
+    // Update/Create session doc
+    await _firestore
+        .collection('users')
+        .doc(user.uid)
+        .collection('sessions')
+        .doc(_currentSessionId)
+        .set({
+      'title': isNew ? (msg.text.length > 30 ? msg.text.substring(0, 30) + "..." : msg.text) : _sessionTitle,
+      'lastTimestamp': FieldValue.serverTimestamp(),
+    }, SetOptions(merge: true));
+
+    if (isNew && msg.isUser) {
+      setState(() {
+        _sessionTitle = msg.text.length > 30 ? msg.text.substring(0, 30) + "..." : msg.text;
+      });
+    }
 
     await _firestore
         .collection('users')
         .doc(user.uid)
-        .collection('chats')
+        .collection('sessions')
+        .doc(_currentSessionId)
+        .collection('messages')
         .add({
       'text': msg.text,
       'isUser': msg.isUser,
@@ -119,8 +153,6 @@ class _ZaraChatScreenState extends State<ZaraChatScreen>
     });
     _scrollToBottom();
     _saveMessageToDb(msg);
-
-    // Call dynamic AI
     _getDynamicResponse(text);
   }
 
@@ -131,9 +163,8 @@ class _ZaraChatScreenState extends State<ZaraChatScreen>
       return;
     }
 
-    // Get habit context
     final habitProvider = Provider.of<HabitProvider>(context, listen: false);
-    final habitContext = habitProvider.habits.map((h) => "- ${h.name} (${h.category}): Streak ${h.streak}, Progress ${h.completionRate.toStringAsFixed(2)}%").join("\n");
+    final habitContext = habitProvider.habits.map((h) => "- ${h.name}: Streak ${h.streak}").join("\n");
 
     try {
       final response = await http.post(
@@ -143,20 +174,19 @@ class _ZaraChatScreenState extends State<ZaraChatScreen>
           'Content-Type': 'application/json',
         },
         body: jsonEncode({
-          "model": "llama-3.3-70b-versatile",
+          "model": "llama-3-70b-8192",
           "messages": [
             {
               "role": "system",
-              "content": "You are 'Zara', a futuristic and friendly AI habit companion for an app called 'Trackify'. You speak in a mix of English and Tamil slang (like using 'da', 'ko', 'vanakkam'). Be motivating, insightful, and concise. Don't be too formal. Here is the user's current habit progress:\n$habitContext"
+              "content": "You are 'Zara', a futuristic and friendly AI habit companion. Speak English with Tamil slang like 'da', 'ko', 'machan'. Be motivating. Context:\n$habitContext"
             },
             ..._messages.reversed.take(6).toList().reversed.map((m) => {
               "role": m.isUser ? "user" : "assistant",
               "content": m.text
             }),
-            {"role": "user", "content": userText}
           ],
           "temperature": 0.7,
-          "max_completion_tokens": 1024,
+          "max_tokens": 1000,
         }),
       );
 
@@ -165,13 +195,12 @@ class _ZaraChatScreenState extends State<ZaraChatScreen>
         final aiMessage = data['choices'][0]['message']['content'];
         _addZaraMessage(aiMessage, saveToDb: true);
       } else {
-        _addZaraMessage("Sorry da, I'm having a technical glitch! Try again later. 🤖", saveToDb: true);
+        _addZaraMessage("Brain error da! Status ${response.statusCode}. 🤖", saveToDb: true);
       }
     } catch (e) {
-      debugPrint("GROQ Error: $e");
-      _addZaraMessage("Network error da! Check your internet. 📶", saveToDb: true);
+      _addZaraMessage("Connection failure da! 📶", saveToDb: true);
     } finally {
-      setState(() => _zaraTyping = false);
+      if (mounted) setState(() => _zaraTyping = false);
     }
   }
 
@@ -188,79 +217,34 @@ class _ZaraChatScreenState extends State<ZaraChatScreen>
   }
 
   @override
-  void dispose() {
-    _inputCtrl.dispose();
-    _scrollCtrl.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0A0A0F),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF0A0A0F),
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded,
-              color: Colors.white, size: 18),
-          onPressed: () => Navigator.pop(context),
+        centerTitle: true,
+        title: Text(
+          "Zara AI",
+          style: GoogleFonts.outfit(fontSize: 18, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface),
         ),
-        title: Row(
-          children: [
-            // Mini robot icon in app bar
-            SizedBox(
-              width: 36,
-              height: 36,
-              child: CustomPaint(painter: _MiniRobotPainter()),
-            ),
-            const SizedBox(width: 10),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Zara',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                Row(
-                  children: [
-                    Container(
-                      width: 6,
-                      height: 6,
-                      decoration: const BoxDecoration(
-                        color: Color(0xFF1D9E75),
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                    const SizedBox(width: 4),
-                    const Text(
-                      'Online',
-                      style: TextStyle(
-                        fontFamily: 'monospace',
-                        fontSize: 11,
-                        color: Color(0xFF1D9E75),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ],
-        ),
+        iconTheme: IconThemeData(color: Theme.of(context).colorScheme.onSurface),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.add_circle_outline, color: Theme.of(context).primaryColor),
+            onPressed: _createNewSession,
+          )
+        ],
       ),
+      drawer: _buildDrawer(),
       body: Column(
         children: [
-          // Messages list
           Expanded(
             child: _isLoading 
               ? const Center(child: CircularProgressIndicator(color: Color(0xFF1D9E75)))
               : ListView.builder(
                   controller: _scrollCtrl,
-                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                   itemCount: _messages.length + (_zaraTyping ? 1 : 0),
                   itemBuilder: (context, i) {
                     if (_zaraTyping && i == _messages.length) {
@@ -270,89 +254,87 @@ class _ZaraChatScreenState extends State<ZaraChatScreen>
                   },
                 ),
           ),
+          _buildInputArea(),
+        ],
+      ),
+    );
+  }
 
-          // Quick suggestions
-          if (_messages.length <= 1)
-            SizedBox(
-              height: 44,
-              child: ListView.separated(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                itemCount: _suggestions.length,
-                separatorBuilder: (_, __) => const SizedBox(width: 8),
-                itemBuilder: (_, i) => GestureDetector(
-                  onTap: () => _sendMessage(_suggestions[i]),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF12121A),
-                      border: Border.all(color: const Color(0xFF1D9E75).withOpacity(0.4)),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Text(
-                      _suggestions[i],
-                      style: const TextStyle(
-                        fontFamily: 'monospace',
-                        fontSize: 12,
-                        color: Color(0xFF9FE1CB),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-
-          const SizedBox(height: 8),
-
-          // Input field
+  Widget _buildDrawer() {
+    final user = _auth.currentUser;
+    return Drawer(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      child: Column(
+        children: [
           Container(
-            margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-            decoration: BoxDecoration(
-              color: const Color(0xFF12121A),
-              border: Border.all(color: const Color(0xFF1E2830)),
-              borderRadius: BorderRadius.circular(28),
-            ),
-            child: Row(
+            height: 150,
+            width: double.infinity,
+            padding: const EdgeInsets.all(20),
+            color: Theme.of(context).primaryColor.withOpacity(0.1),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
-                  child: TextField(
-                    controller: _inputCtrl,
-                    style: const TextStyle(
-                      fontFamily: 'monospace',
-                      fontSize: 14,
-                      color: Color(0xFFE2E8F0),
-                    ),
-                    decoration: const InputDecoration(
-                      hintText: 'Talk to Zara...',
-                      hintStyle: TextStyle(
-                        color: Color(0xFF2D3748),
-                        fontFamily: 'monospace',
-                        fontSize: 14,
-                      ),
-                      border: InputBorder.none,
-                    ),
-                    onSubmitted: _sendMessage,
-                  ),
-                ),
-                GestureDetector(
-                  onTap: () => _sendMessage(_inputCtrl.text),
-                  child: Container(
-                    width: 36,
-                    height: 36,
-                    decoration: const BoxDecoration(
-                      color: Color(0xFF1D9E75),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.send_rounded,
-                      color: Colors.white,
-                      size: 16,
-                    ),
-                  ),
-                ),
+                const Icon(Icons.history_toggle_off, size: 32, color: Color(0xFF1D9E75)),
+                const SizedBox(height: 12),
+                Text("Chat History", 
+                  style: GoogleFonts.outfit(fontSize: 22, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface)),
               ],
             ),
+          ),
+          ListTile(
+            onTap: () {
+              Navigator.pop(context);
+              _createNewSession();
+            },
+            leading: const Icon(Icons.add_comment, color: Color(0xFF1D9E75)),
+            title: Text("New Chat Session", style: GoogleFonts.outfit(fontWeight: FontWeight.w600)),
+          ),
+          const Divider(),
+          Expanded(
+            child: user == null
+                ? const Center(child: Text("Guest Mode"))
+                : StreamBuilder<QuerySnapshot>(
+                    stream: _firestore
+                        .collection('users')
+                        .doc(user.uid)
+                        .collection('sessions')
+                        .orderBy('lastTimestamp', descending: true)
+                        .snapshots(),
+                    builder: (context, snapshot) {
+                      if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
+                      final docs = snapshot.data!.docs;
+                      if (docs.isEmpty) return Center(child: Text("No history yet da!", style: GoogleFonts.outfit(color: Colors.grey)));
+                      
+                      return ListView.builder(
+                        padding: EdgeInsets.zero,
+                        itemCount: docs.length,
+                        itemBuilder: (context, i) {
+                          final doc = docs[i];
+                          final isSelected = doc.id == _currentSessionId;
+                          return ListTile(
+                            selected: isSelected,
+                            selectedTileColor: Theme.of(context).primaryColor.withOpacity(0.05),
+                            leading: Icon(Icons.chat_outlined, size: 18, color: isSelected ? const Color(0xFF1D9E75) : Colors.grey),
+                            title: Text(doc['title'], 
+                              maxLines: 1, 
+                              overflow: TextOverflow.ellipsis,
+                              style: GoogleFonts.outfit(fontSize: 14, color: isSelected ? const Color(0xFF1D9E75) : Theme.of(context).colorScheme.onSurface)),
+                            onTap: () {
+                              Navigator.pop(context);
+                              _loadSession(doc.id, doc['title']);
+                            },
+                            trailing: IconButton(
+                              icon: const Icon(Icons.delete_outline, size: 16, color: Colors.grey),
+                              onPressed: () {
+                                _firestore.collection('users').doc(user.uid).collection('sessions').doc(doc.id).delete();
+                              },
+                            ),
+                          );
+                        },
+                      );
+                    },
+                  ),
           ),
         ],
       ),
@@ -360,50 +342,98 @@ class _ZaraChatScreenState extends State<ZaraChatScreen>
   }
 
   Widget _buildMessageBubble(_ChatMessage msg) {
+    final isZara = !msg.isUser;
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Row(
-        mainAxisAlignment:
-            msg.isUser ? MainAxisAlignment.end : MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.end,
+      padding: const EdgeInsets.only(bottom: 20),
+      child: Column(
+        crossAxisAlignment: msg.isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
         children: [
-          if (!msg.isUser) ...[
-            Container(
-              width: 28,
-              height: 28,
-              margin: const EdgeInsets.only(right: 8),
-              child: CustomPaint(painter: _MiniRobotPainter()),
+          Row(
+            mainAxisAlignment: msg.isUser ? MainAxisAlignment.end : MainAxisAlignment.start,
+            children: [
+              if (isZara)
+                Container(
+                  padding: const EdgeInsets.all(6),
+                  decoration: const BoxDecoration(color: Color(0xFF1D9E75), shape: BoxShape.circle),
+                  child: const Icon(Icons.auto_awesome, size: 14, color: Colors.white),
+                ),
+              const SizedBox(width: 10),
+              Text(
+                isZara ? "ZARA" : "YOU",
+                style: GoogleFonts.outfit(
+                  fontSize: 10, 
+                  fontWeight: FontWeight.bold, 
+                  letterSpacing: 1,
+                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4)),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Container(
+            constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.85),
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: msg.isUser 
+                ? Theme.of(context).primaryColor.withOpacity(0.1) 
+                : Theme.of(context).cardColor,
+              borderRadius: BorderRadius.only(
+                topLeft: const Radius.circular(20),
+                topRight: const Radius.circular(20),
+                bottomLeft: Radius.circular(isZara ? 4 : 20),
+                bottomRight: Radius.circular(isZara ? 20 : 4),
+              ),
+              border: isZara ? Border.all(color: Theme.of(context).dividerColor) : null,
             ),
-          ],
-          Flexible(
+            child: Text(
+              msg.text,
+              style: GoogleFonts.outfit(
+                fontSize: 15,
+                height: 1.6,
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInputArea() {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 30),
+      decoration: BoxDecoration(
+        color: Theme.of(context).scaffoldBackgroundColor,
+        border: Border(top: BorderSide(color: Theme.of(context).dividerColor, width: 0.5)),
+      ),
+      child: Row(
+        children: [
+          Expanded(
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
               decoration: BoxDecoration(
-                color: msg.isUser
-                    ? const Color(0xFF1D9E75)
-                    : const Color(0xFF12121A),
-                border: msg.isUser
-                    ? null
-                    : Border.all(
-                        color: const Color(0xFF1D9E75).withOpacity(0.3)),
-                borderRadius: BorderRadius.only(
-                  topLeft: const Radius.circular(16),
-                  topRight: const Radius.circular(16),
-                  bottomLeft: Radius.circular(msg.isUser ? 16 : 4),
-                  bottomRight: Radius.circular(msg.isUser ? 4 : 16),
-                ),
+                color: Theme.of(context).cardColor,
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(color: Theme.of(context).dividerColor),
               ),
-              child: Text(
-                msg.text,
-                style: TextStyle(
-                  fontFamily: 'monospace',
-                  fontSize: 13,
-                  color: msg.isUser
-                      ? Colors.white
-                      : const Color(0xFFE2E8F0),
-                  height: 1.5,
+              child: TextField(
+                controller: _inputCtrl,
+                style: GoogleFonts.outfit(fontSize: 15),
+                decoration: const InputDecoration(
+                  hintText: 'Ask Zara anything...',
+                  border: InputBorder.none,
+                  hintStyle: TextStyle(color: Colors.grey),
                 ),
+                onSubmitted: _sendMessage,
               ),
+            ),
+          ),
+          const SizedBox(width: 10),
+          GestureDetector(
+            onTap: () => _sendMessage(_inputCtrl.text),
+            child: Container(
+              padding: const EdgeInsets.all(12),
+              decoration: const BoxDecoration(color: Color(0xFF1D9E75), shape: BoxShape.circle),
+              child: const Icon(Icons.send_rounded, color: Colors.white, size: 20),
             ),
           ),
         ],
@@ -413,91 +443,29 @@ class _ZaraChatScreenState extends State<ZaraChatScreen>
 
   Widget _buildTypingIndicator() {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.only(bottom: 20),
       child: Row(
         children: [
           Container(
-            width: 28,
-            height: 28,
-            margin: const EdgeInsets.only(right: 8),
-            child: CustomPaint(painter: _MiniRobotPainter()),
-          ),
-          Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
-              color: const Color(0xFF12121A),
-              border: Border.all(
-                  color: const Color(0xFF1D9E75).withOpacity(0.3)),
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(16),
-                topRight: Radius.circular(16),
-                bottomRight: Radius.circular(16),
-                bottomLeft: Radius.circular(4),
-              ),
+              color: Theme.of(context).cardColor,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: Theme.of(context).dividerColor),
             ),
             child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: List.generate(
-                3,
-                (i) => _TypingDot(delay: i * 200),
-              ),
+              children: [
+                const SizedBox(
+                  width: 12,
+                  height: 12,
+                  child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF1D9E75)),
+                ),
+                const SizedBox(width: 12),
+                Text("Zara is thinking...", style: GoogleFonts.outfit(fontSize: 13, color: Colors.grey)),
+              ],
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _TypingDot extends StatefulWidget {
-  final int delay;
-  const _TypingDot({required this.delay});
-
-  @override
-  State<_TypingDot> createState() => _TypingDotState();
-}
-
-class _TypingDotState extends State<_TypingDot>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _ctrl;
-  late Animation<double> _anim;
-
-  @override
-  void initState() {
-    super.initState();
-    _ctrl = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 600),
-    );
-    _anim = Tween<double>(begin: 0, end: -6).animate(
-      CurvedAnimation(parent: _ctrl, curve: Curves.easeInOut),
-    );
-    Future.delayed(Duration(milliseconds: widget.delay), () {
-      if (mounted) _ctrl.repeat(reverse: true);
-    });
-  }
-
-  @override
-  void dispose() {
-    _ctrl.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _anim,
-      builder: (_, __) => Transform.translate(
-        offset: Offset(0, _anim.value),
-        child: Container(
-          width: 6,
-          height: 6,
-          margin: const EdgeInsets.symmetric(horizontal: 3),
-          decoration: const BoxDecoration(
-            color: Color(0xFF1D9E75),
-            shape: BoxShape.circle,
-          ),
-        ),
       ),
     );
   }
@@ -509,63 +477,3 @@ class _ChatMessage {
   final DateTime timestamp;
   _ChatMessage({required this.text, required this.isUser, required this.timestamp});
 }
-
-class _MiniRobotPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final teal = Paint()..color = const Color(0xFF1D9E75);
-    final body = Paint()..color = const Color(0xFF12121A);
-    final border = Paint()
-      ..color = const Color(0xFF1D9E75)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1;
-
-    final scaleX = size.width / 200;
-    final scaleY = size.height / 260;
-
-    canvas.save();
-    canvas.scale(scaleX, scaleY);
-
-    // Head
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(
-          const Rect.fromLTWH(62, 36, 76, 68), const Radius.circular(18)),
-      body,
-    );
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(
-          const Rect.fromLTWH(62, 36, 76, 68), const Radius.circular(18)),
-      border,
-    );
-
-    // Eyes
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(
-          const Rect.fromLTWH(76, 54, 18, 14), const Radius.circular(7)),
-      teal,
-    );
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(
-          const Rect.fromLTWH(106, 54, 18, 14), const Radius.circular(7)),
-      teal,
-    );
-
-    // Torso
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(
-          const Rect.fromLTWH(55, 112, 90, 80), const Radius.circular(16)),
-      body,
-    );
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(
-          const Rect.fromLTWH(55, 112, 90, 80), const Radius.circular(16)),
-      border,
-    );
-
-    canvas.restore();
-  }
-
-  @override
-  bool shouldRepaint(_) => false;
-}
-

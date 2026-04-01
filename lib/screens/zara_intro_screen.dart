@@ -97,8 +97,9 @@ class _ZaraIntroScreenState extends State<ZaraIntroScreen>
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: const Color(0xFF0A0A0F),
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: FadeTransition(
         opacity: _fadeAnim,
         child: SafeArea(
@@ -112,7 +113,7 @@ class _ZaraIntroScreenState extends State<ZaraIntroScreen>
                   style: GoogleFonts.outfit(
                     fontSize: 10,
                     fontWeight: FontWeight.w600,
-                    color: const Color(0xFF1D9E75).withOpacity(0.8),
+                    color: theme.primaryColor.withOpacity(0.8),
                     letterSpacing: 3,
                   ),
                 ),
@@ -131,8 +132,8 @@ class _ZaraIntroScreenState extends State<ZaraIntroScreen>
                         shape: BoxShape.circle,
                         gradient: RadialGradient(
                           colors: [
-                            const Color(0xFF1D9E75).withOpacity(0.12),
-                            const Color(0xFF1D9E75).withOpacity(0.02),
+                            theme.primaryColor.withOpacity(0.12),
+                            theme.primaryColor.withOpacity(0.02),
                             Colors.transparent,
                           ],
                         ),
@@ -146,7 +147,7 @@ class _ZaraIntroScreenState extends State<ZaraIntroScreen>
                         shape: BoxShape.circle,
                         boxShadow: [
                           BoxShadow(
-                            color: const Color(0xFF1D9E75).withOpacity(0.1),
+                            color: theme.primaryColor.withOpacity(0.1),
                             blurRadius: 60,
                             spreadRadius: 10,
                           ),
@@ -165,15 +166,15 @@ class _ZaraIntroScreenState extends State<ZaraIntroScreen>
                   style: GoogleFonts.outfit(
                     fontSize: 48,
                     fontWeight: FontWeight.w900,
-                    color: Colors.white,
+                    color: theme.colorScheme.onSurface,
                     letterSpacing: -1,
                   ),
                 ),
                 Text(
                   '// your habit companion',
-                  style: GoogleFonts.jetBrainsMono(
+                  style: GoogleFonts.outfit(
                     fontSize: 13,
-                    color: const Color(0xFF4A5568),
+                    color: theme.colorScheme.onSurface.withOpacity(0.4),
                     letterSpacing: 0.5,
                   ),
                 ),
@@ -185,10 +186,10 @@ class _ZaraIntroScreenState extends State<ZaraIntroScreen>
                   margin: const EdgeInsets.symmetric(horizontal: 40),
                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF12121A).withOpacity(0.5),
+                    color: theme.cardColor.withOpacity(0.5),
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(
-                      color: const Color(0xFF1D9E75).withOpacity(0.3),
+                      color: theme.primaryColor.withOpacity(0.3),
                       width: 1.5,
                     ),
                   ),
@@ -196,9 +197,9 @@ class _ZaraIntroScreenState extends State<ZaraIntroScreen>
                     children: [
                       Expanded(
                         child: Text(
-                          "Hi! I'm Zara da! How are you|",
+                          _displayedText.isEmpty ? "Hi! I'm Zara da!" : _displayedText + "|",
                           style: GoogleFonts.outfit(
-                            color: Colors.white,
+                            color: theme.colorScheme.onSurface,
                             fontSize: 16,
                             fontWeight: FontWeight.w500,
                           ),
@@ -218,7 +219,7 @@ class _ZaraIntroScreenState extends State<ZaraIntroScreen>
                       borderRadius: BorderRadius.circular(50),
                       boxShadow: [
                         BoxShadow(
-                          color: const Color(0xFF1D9E75).withOpacity(0.3),
+                          color: theme.primaryColor.withOpacity(0.2),
                           blurRadius: 20,
                           offset: const Offset(0, 8),
                         ),
@@ -245,12 +246,13 @@ class _ZaraIntroScreenState extends State<ZaraIntroScreen>
                         ),
                       ),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF1D9E75),
+                        backgroundColor: theme.primaryColor,
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 20),
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(50)),
                         elevation: 0,
+                        minimumSize: const Size(double.infinity, 0),
                       ),
                     ),
                   ),
@@ -261,12 +263,11 @@ class _ZaraIntroScreenState extends State<ZaraIntroScreen>
 
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Text(
+                child: Text(
                   'Maybe later',
-                  style: TextStyle(
-                    fontFamily: 'monospace',
+                  style: GoogleFonts.outfit(
                     fontSize: 12,
-                    color: Color(0xFF4A5568),
+                    color: theme.colorScheme.onSurface.withOpacity(0.4),
                   ),
                 ),
               ),
