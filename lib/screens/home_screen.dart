@@ -9,6 +9,7 @@ import 'add_habit_screen.dart';
 import 'analytics_screen.dart';
 import 'zara_intro_screen.dart';
 import 'login_screen.dart';
+import 'profile_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -163,15 +164,23 @@ class _HomeScreenState extends State<HomeScreen> {
       padding: const EdgeInsets.fromLTRB(20, 20, 12, 20),
       child: Row(
         children: [
-          CircleAvatar(
-            radius: 25,
-            backgroundColor: const Color(0xFF1F1F25),
-            child: Text(
-              name[0],
-              style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold),
+          GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const ProfileScreen()),
+              );
+            },
+            child: CircleAvatar(
+              radius: 25,
+              backgroundColor: const Color(0xFF1F1F25),
+              child: Text(
+                name.isNotEmpty ? name[0] : 'U',
+                style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold),
+              ),
             ),
           ),
           const SizedBox(width: 15),
@@ -259,80 +268,85 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildWeeklyCalendar() {
     final now = DateTime.now();
-    // Show Mon–Sun of current week
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: List.generate(7, (index) {
-        final date = DateTime(
-          now.year,
-          now.month,
-          now.day - (now.weekday - 1) + index,
-        );
-        final isToday = _isToday(date);
-        final isSelected = _isSameDay(date, _selectedDate);
-        final isPast = date.isBefore(DateTime(now.year, now.month, now.day));
-        final isFuture = date.isAfter(DateTime(now.year, now.month, now.day));
+    // Show 30 days (15 past, today, 14 future)
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: List.generate(30, (index) {
+          final date = DateTime(
+            now.year,
+            now.month,
+            now.day - 15 + index,
+          );
+          final isToday = _isToday(date);
+          final isSelected = _isSameDay(date, _selectedDate);
+          final isPast = date.isBefore(DateTime(now.year, now.month, now.day));
+          final isFuture = date.isAfter(DateTime(now.year, now.month, now.day));
 
-        return GestureDetector(
-          onTap: () {
-            // Allow ALL days of the week to be tapped (past, today, future)
-            setState(() {
-              _selectedDate = date;
-            });
-          },
-          child: Column(
-            children: [
-              Text(
-                DateFormat('EEE').format(date).toUpperCase(),
-                style: GoogleFonts.outfit(
-                  fontSize: 10,
-                  color: isSelected
-                      ? const Color(0xFF1D9E75)
-                      : isToday
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10.0),
+            child: GestureDetector(
+              onTap: () {
+                // Allow ALL days to be tapped (past, today, future)
+                setState(() {
+                  _selectedDate = date;
+                });
+              },
+              child: Column(
+                children: [
+                  Text(
+                    DateFormat('EEE').format(date).toUpperCase(),
+                    style: GoogleFonts.outfit(
+                      fontSize: 10,
+                      color: isSelected
                           ? const Color(0xFF1D9E75)
-                          : Colors.white24,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: isSelected
-                      ? (isFuture
-                          ? const Color(0xFF7C3AED)
-                          : const Color(0xFF1D9E75))
-                      : Colors.transparent,
-                  borderRadius: BorderRadius.circular(12),
-                  border: isSelected
-                      ? null
-                      : Border.all(
-                          color: isToday
-                              ? const Color(0xFF1D9E75).withOpacity(0.5)
-                              : isFuture
-                                  ? const Color(0xFF7C3AED).withOpacity(0.2)
-                                  : Colors.white10),
-                ),
-                child: Text(
-                  date.day.toString(),
-                  style: GoogleFonts.outfit(
-                    fontSize: 14,
-                    color: isSelected
-                        ? Colors.white
-                        : isPast
-                            ? Colors.white38
-                            : isFuture
-                                ? const Color(0xFF7C3AED).withOpacity(0.7)
-                                : Colors.white60,
-                    fontWeight:
-                        isSelected ? FontWeight.bold : FontWeight.normal,
+                          : isToday
+                              ? const Color(0xFF1D9E75)
+                              : Colors.white24,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
-                ),
+                  const SizedBox(height: 8),
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: isSelected
+                          ? (isFuture
+                              ? const Color(0xFF7C3AED)
+                              : const Color(0xFF1D9E75))
+                          : Colors.transparent,
+                      borderRadius: BorderRadius.circular(12),
+                      border: isSelected
+                          ? null
+                          : Border.all(
+                              color: isToday
+                                  ? const Color(0xFF1D9E75).withOpacity(0.5)
+                                  : isFuture
+                                      ? const Color(0xFF7C3AED).withOpacity(0.2)
+                                      : Colors.white10),
+                    ),
+                    child: Text(
+                      date.day.toString(),
+                      style: GoogleFonts.outfit(
+                        fontSize: 14,
+                        color: isSelected
+                            ? Colors.white
+                            : isPast
+                                ? Colors.white38
+                                : isFuture
+                                    ? const Color(0xFF7C3AED).withOpacity(0.7)
+                                    : Colors.white60,
+                        fontWeight:
+                            isSelected ? FontWeight.bold : FontWeight.normal,
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
-        );
-      }),
+            ),
+          );
+        }),
+      ),
     );
   }
 
@@ -1014,7 +1028,12 @@ class _HomeScreenState extends State<HomeScreen> {
                 color: _currentIndex == 3
                     ? const Color(0xFF1D9E75)
                     : Colors.white38),
-            onPressed: () => setState(() => _currentIndex = 3),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const ProfileScreen()),
+              );
+            },
           ),
         ],
       ),
