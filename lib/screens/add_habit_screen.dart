@@ -227,7 +227,7 @@ class _AddHabitScreenState extends State<AddHabitScreen>
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      app_bar: AppBar(
+      appBar: AppBar(
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         title: Text("New Habit",
             style: GoogleFonts.outfit(fontWeight: FontWeight.bold)),

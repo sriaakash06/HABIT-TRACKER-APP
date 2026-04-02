@@ -174,19 +174,19 @@ class _ZaraChatScreenState extends State<ZaraChatScreen>
           'Content-Type': 'application/json',
         },
         body: jsonEncode({
-          "model": "llama-3-70b-8192",
+          "model": "llama-3.3-70b-versatile",
           "messages": [
             {
               "role": "system",
               "content": "You are 'Zara', a futuristic and friendly AI habit companion. Speak English with Tamil slang like 'da', 'ko', 'machan'. Be motivating. Context:\n$habitContext"
             },
-            ..._messages.reversed.take(6).toList().reversed.map((m) => {
+            ...(_messages.length > 6 ? _messages.sublist(_messages.length - 6) : _messages).map((m) => {
               "role": m.isUser ? "user" : "assistant",
               "content": m.text
             }),
           ],
           "temperature": 0.7,
-          "max_tokens": 1000,
+          "max_tokens": 1024,
         }),
       );
 

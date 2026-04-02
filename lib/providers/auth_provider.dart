@@ -18,9 +18,11 @@ class AuthProvider with ChangeNotifier {
     });
   }
 
-  Future<String?> signUp(String email, String password) async {
+  Future<String?> signUp(String email, String password, String displayName) async {
     try {
-      await _auth.createUserWithEmailAndPassword(email: email, password: password);
+      final credential = await _auth.createUserWithEmailAndPassword(email: email, password: password);
+      // Update display name immediately after account creation
+      await credential.user?.updateDisplayName(displayName);
       return null;
     } on FirebaseAuthException catch (e) {
       return e.message;

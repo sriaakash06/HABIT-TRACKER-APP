@@ -12,13 +12,14 @@ class SignupScreen extends StatefulWidget {
 }
 
 class _SignupScreenState extends State<SignupScreen> {
+  final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   bool _isLoading = false;
 
   void _handleRegister() async {
-    if (_emailController.text.isEmpty || _passwordController.text.isEmpty) {
+    if (_nameController.text.isEmpty || _emailController.text.isEmpty || _passwordController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please fill all fields da!')));
       return;
     }
@@ -31,7 +32,7 @@ class _SignupScreenState extends State<SignupScreen> {
 
     setState(() => _isLoading = true);
     final error = await Provider.of<AuthProvider>(context, listen: false)
-        .signUp(_emailController.text, _passwordController.text);
+        .signUp(_emailController.text, _passwordController.text, _nameController.text);
     setState(() => _isLoading = false);
 
     if (error == null) {
@@ -91,6 +92,8 @@ class _SignupScreenState extends State<SignupScreen> {
                 style: GoogleFonts.outfit(color: theme.colorScheme.onSurface.withOpacity(0.4)),
               ),
               const SizedBox(height: 48),
+              _buildTextField(_nameController, 'Full Name', Icons.person_outline),
+              const SizedBox(height: 16),
               _buildTextField(_emailController, 'Email Address', Icons.email_outlined),
               const SizedBox(height: 16),
               _buildTextField(_passwordController, 'Password', Icons.lock_outline, obscure: true),

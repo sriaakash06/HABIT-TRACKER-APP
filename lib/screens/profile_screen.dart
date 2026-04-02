@@ -8,7 +8,7 @@ import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:pdf/widgets.dart' as pw;
-import 'package:excel/excel.dart';
+import 'package:excel/excel.dart' hide Border;
 
 import '../providers/auth_provider.dart';
 import '../providers/habit_provider.dart';
@@ -35,6 +35,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
           cd.year == d.year && cd.month == d.month && cd.day == d.day)).length;
     }
     return data;
+  }
+
+  Map<String, double> _getTodayStats(List<Habit> habits) {
+    if (habits.isEmpty) return {"Done": 0, "Pending": 1};
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    int done = habits.where((h) => h.completionDates.any((d) => 
+      d.year == today.year && d.month == today.month && d.day == today.day
+    )).length;
+    int pending = habits.length - done;
+    return {"Done": done.toDouble(), "Pending": pending.toDouble()};
   }
 
   Future<void> _exportPdf(List<Habit> habits, List<int> chartData) async {
@@ -333,6 +344,123 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
               const SizedBox(height: 30),
 
+              // Pie Chart Section
+              Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: theme.cardColor,
+                  borderRadius: BorderRadius.circular(24),
+                  border: Border.all(color: theme.dividerColor, width: 0.5),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Daily Distribution',
+                          style: GoogleFonts.outfit(fontSize: 20, fontWeight: FontWeight.bold, color: theme.colorScheme.onSurface),
+                        ),
+                        Icon(Icons.pie_chart_rounded, color: const Color(0xFF1D9E75), size: 24),
+                      ],
+                    ),
+                    const SizedBox(height: 30),
+                    SizedBox(
+                      height: 200,
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: PieChart(
+                              PieChartData(
+                                sectionsSpace: 4,
+                                centerSpaceRadius: 40,
+                                sections: [
+                                  PieChartSectionData(
+                                    value: _getTodayStats(habits)["Done"]!,
+                                    title: '${(_getTodayStats(habits)["Done"]! / (habits.isEmpty ? 1 : habits.length) * 100).toInt()}%',
+                                    color: const Color(0xFF1D9E75),
+                                    radius: 50,
+                                    titleStyle: GoogleFonts.outfit(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white),
+                                  ),
+                                  PieChartSectionData(
+                                    value: _getTodayStats(habits)["Pending"]!,
+                                    title: '${(_getTodayStats(habits)["Pending"]! / (habits.isEmpty ? 1 : habits.length) * 100).toInt()}%',
+                                    color: theme.primaryColor.withOpacity(0.2),
+                                    radius: 40,
+                                    titleStyle: GoogleFonts.outfit(fontSize: 12, fontWeight: FontWeight.bold, color: theme.colorScheme.onSurface.withOpacity(0.5)),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _buildLegendItem(const Color(0xFF1D9E75), "Done", theme),
+                              const SizedBox(height: 8),
+                              _buildLegendItem(theme.primaryColor.withOpacity(0.2), "Pending", theme),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 30),
+
+              // Monthly Report Section
+              Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: theme.cardColor,
+                  borderRadius: BorderRadius.circular(24),
+                  border: Border.all(color: theme.dividerColor.withOpacity(0.1), width: 1),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Monthly Progress',
+                          style: GoogleFonts.outfit(fontSize: 20, fontWeight: FontWeight.bold, color: theme.colorScheme.onSurface),
+                        ),
+                        Text(
+                          DateFormat('MMMM').format(DateTime.now()),
+                          style: GoogleFonts.outfit(color: theme.primaryColor, fontWeight: FontWeight.w600),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 25),
+                    _buildMonthlyHeatmap(habits, theme),
+                    const SizedBox(height: 15),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Text("Less", style: GoogleFonts.outfit(fontSize: 10, color: theme.colorScheme.onSurface.withOpacity(0.3))),
+                        const SizedBox(width: 4),
+                        ...List.generate(5, (index) => Container(
+                          width: 10,
+                          height: 10,
+                          margin: const EdgeInsets.symmetric(horizontal: 2),
+                          decoration: BoxDecoration(
+                            color: theme.primaryColor.withOpacity(0.1 + (index * 0.225)),
+                            borderRadius: BorderRadius.circular(2),
+                          ),
+                        )),
+                        const SizedBox(width: 4),
+                        Text("More", style: GoogleFonts.outfit(fontSize: 10, color: theme.colorScheme.onSurface.withOpacity(0.3))),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 30),
+
               // Export Actions
               Row(
                 children: [
@@ -422,6 +550,105 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildMonthlyHeatmap(List<Habit> habits, ThemeData theme) {
+    final now = DateTime.now();
+    final firstDayOfMonth = DateTime(now.year, now.month, 1);
+    final lastDayOfMonth = DateTime(now.year, now.month + 1, 0);
+    final daysInMonth = lastDayOfMonth.day;
+    final weekOffset = (firstDayOfMonth.weekday % 7); // Sunday = 0? (In Dart Mon=1, Sun=7)
+    // Actually DateTime.weekday: 1 (Mon) to 7 (Sun). 
+    // If we want Sun as start, then Sun(7)%7 = 0.
+    final startOffset = firstDayOfMonth.weekday == 7 ? 0 : firstDayOfMonth.weekday;
+
+    return Column(
+      children: [
+        // Weekday labels
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: ['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day) => Text(
+            day, 
+            style: GoogleFonts.outfit(fontSize: 10, fontWeight: FontWeight.w600, color: theme.colorScheme.onSurface.withOpacity(0.3)),
+          )).toList(),
+        ),
+        const SizedBox(height: 12),
+        GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 7,
+            crossAxisSpacing: 6,
+            mainAxisSpacing: 6,
+            childAspectRatio: 1,
+          ),
+          itemCount: daysInMonth + startOffset,
+          itemBuilder: (context, index) {
+            if (index < startOffset) return const SizedBox();
+            
+            final day = index - startOffset + 1;
+            final date = DateTime(now.year, now.month, day);
+            
+            // Count completed habits for this day
+            int totalHabits = habits.length;
+            int completedCount = habits.where((h) => 
+              h.completionDates.any((d) => 
+                d.year == date.year && d.month == date.month && d.day == date.day
+              )
+            ).length;
+            
+            double intensity = totalHabits > 0 ? (completedCount / totalHabits) : 0;
+            bool isToday = day == now.day;
+            bool isPast = date.isBefore(DateTime(now.year, now.month, now.day));
+            bool isFuture = date.isAfter(DateTime(now.year, now.month, now.day));
+
+            Color cellColor;
+            if (completedCount > 0) {
+              cellColor = theme.primaryColor.withOpacity(0.2 + (intensity * 0.8));
+            } else {
+              cellColor = theme.colorScheme.onSurface.withOpacity(0.05);
+            }
+
+            return Container(
+              decoration: BoxDecoration(
+                color: cellColor,
+                borderRadius: BorderRadius.circular(6),
+                border: isToday ? Border.all(color: theme.primaryColor, width: 1.5) : null,
+              ),
+              child: Center(
+                child: Text(
+                  day.toString(),
+                  style: GoogleFonts.outfit(
+                    fontSize: 9,
+                    fontWeight: isToday ? FontWeight.bold : FontWeight.normal,
+                    color: intensity > 0.6 
+                      ? Colors.white 
+                      : theme.colorScheme.onSurface.withOpacity(isFuture ? 0.2 : 0.6),
+                  ),
+                ),
+              ),
+            );
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildLegendItem(Color color, String label, ThemeData theme) {
+    return Row(
+      children: [
+        Container(
+          width: 12,
+          height: 12,
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+        ),
+        const SizedBox(width: 8),
+        Text(
+          label,
+          style: GoogleFonts.outfit(fontSize: 14, color: theme.colorScheme.onSurface.withOpacity(0.6)),
+        ),
+      ],
     );
   }
 }
