@@ -4,7 +4,9 @@
 
 | Home | Habits | Add Habit |
 |------|--------|-----------|
-| <img src="https://github.com/user-attachments/assets/d43508f3-16b5-4bf7-a847-bc887ef2e16d" width="200"/> | <img src="https://github.com/user-attachments/assets/4c5eeec4-1db5-4074-9de2-de9eba4f4aba" width="200"/> | <img src="https://github.com/user-attachments/assets/e0e7807e-720b-4fa0-86fd-715d5532870f" width="200"/> |
+| <img src="https://github.com/user-attachments/assets/d43508f3-16b5-4bf7-a847-bc887ef2e16d" width="200"/> | <img src="https://github.com/user-attachments/assets/473d3d78-66d4-4ffd-8684-4b69efc874c2" width="200" />
+ | <img  src="https://github.com/user-attachments/assets/a474e449-5ed6-4329-aa64-02aad94ad709" width="200" />
+|
 
 | Analytics | Zara AI | Profile |
 |-----------|---------|---------|
