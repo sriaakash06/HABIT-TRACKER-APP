@@ -1,8 +1,14 @@
 # Trackify AI: The Next-Gen Habit Tracker 🚀
 
-![Trackify Banner](https://img.shields.io/badge/Flutter-v3.11+-02569B?style=for-the-badge&logo=flutter&logoColor=white)
-![Firebase](https://img.shields.io/badge/Firebase-v3.11+-FFCA28?style=for-the-badge&logo=firebase&logoColor=black)
-![License](https://img.shields.io/badge/License-MIT-4CAF50?style=for-the-badge)
+<img width="1080" height="2400" alt="image" src="https://github.com/user-attachments/assets/d43508f3-16b5-4bf7-a847-bc887ef2e16d" />
+<img width="1080" height="2400" alt="image" src="https://github.com/user-attachments/assets/4c5eeec4-1db5-4074-9de2-de9eba4f4aba" />
+<img width="540" height="1200" alt="image" src="https://github.com/user-attachments/assets/e0e7807e-720b-4fa0-86fd-715d5532870f" />
+<img width="540" height="1200" alt="image" src="https://github.com/user-attachments/assets/5a00ea98-020d-43c2-ba08-d2a710d085a2" />
+<img width="540" height="1200" alt="image" src="https://github.com/user-attachments/assets/546d19f6-639b-40b1-91c4-f93e0aca1a1b" />
+<img width="1080" height="2400" alt="image" src="https://github.com/user-attachments/assets/67fdf2ea-41c9-4d92-a485-c5acbcab7dff" />
+
+
+
 
 Trackify AI is a premium, AI-powered habit tracking application designed to help you build better habits and achieve your goals. With a sleek "Neon Sanctuary" design and deep AI integration, Trackify provides personalized coaching and advanced data visualization to keep you on the right path.
 
@@ -123,7 +129,5 @@ Distributed under the MIT License. See `LICENSE` for more information.
 ## 📧 Contact
 
 **Sriaakash** - https://github.com/sriaakash06
-
-Email - asriaakash@gmail.com
 
 Project Link: [https://github.com/sriaakash06/Habit-Tracker-App](https://github.com/sriaakash06/Habit-Tracker-App)
