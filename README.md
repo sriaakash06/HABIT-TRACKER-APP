@@ -122,6 +122,8 @@ Distributed under the MIT License. See `LICENSE` for more information.
 
 ## 📧 Contact
 
-**Sriaakash** - [@sriaakash](https://github.com/sriaakash)
+**Sriaakash** - https://github.com/sriaakash06
+
+Email - asriaakash@gmail.com
 
 Project Link: [https://github.com/sriaakash06/Habit-Tracker-App](https://github.com/sriaakash06/Habit-Tracker-App)
