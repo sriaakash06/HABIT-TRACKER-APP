@@ -1,11 +1,14 @@
 # Trackify AI: The Next-Gen Habit Tracker 🚀
 
-<img width="1080" height="2400" alt="image" src="https://github.com/user-attachments/assets/d43508f3-16b5-4bf7-a847-bc887ef2e16d" />
-<img width="1080" height="2400" alt="image" src="https://github.com/user-attachments/assets/4c5eeec4-1db5-4074-9de2-de9eba4f4aba" />
-<img width="540" height="1200" alt="image" src="https://github.com/user-attachments/assets/e0e7807e-720b-4fa0-86fd-715d5532870f" />
-<img width="540" height="1200" alt="image" src="https://github.com/user-attachments/assets/5a00ea98-020d-43c2-ba08-d2a710d085a2" />
-<img width="540" height="1200" alt="image" src="https://github.com/user-attachments/assets/546d19f6-639b-40b1-91c4-f93e0aca1a1b" />
-<img width="1080" height="2400" alt="image" src="https://github.com/user-attachments/assets/67fdf2ea-41c9-4d92-a485-c5acbcab7dff" />
+## 📱 Screenshots
+
+| Home | Habits | Add Habit |
+|------|--------|-----------|
+| <img src="https://github.com/user-attachments/assets/d43508f3-16b5-4bf7-a847-bc887ef2e16d" width="200"/> | <img src="https://github.com/user-attachments/assets/4c5eeec4-1db5-4074-9de2-de9eba4f4aba" width="200"/> | <img src="https://github.com/user-attachments/assets/e0e7807e-720b-4fa0-86fd-715d5532870f" width="200"/> |
+
+| Analytics | Zara AI | Profile |
+|-----------|---------|---------|
+| <img src="https://github.com/user-attachments/assets/5a00ea98-020d-43c2-ba08-d2a710d085a2" width="200"/> | <img src="https://github.com/user-attachments/assets/546d19f6-639b-40b1-91c4-f93e0aca1a1b" width="200"/> | <img src="https://github.com/user-attachments/assets/67fdf2ea-41c9-4d92-a485-c5acbcab7dff" width="200"/> |
 
 
 
