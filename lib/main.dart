@@ -13,15 +13,25 @@ import 'screens/splash_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await dotenv.load(fileName: ".env");
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
 
-  await GoogleSignIn.instance.initialize(
-    clientId: dotenv.env['GOOGLE_SERVER_CLIENT_ID'],
-    serverClientId: kIsWeb ? null : dotenv.env['GOOGLE_SERVER_CLIENT_ID'],
-  );
+  // Load environment variables for all platforms with error handling
+  try {
+    await dotenv.load(fileName: ".env");
+  } catch (e) {
+    debugPrint("Warning: .env file not found or failed to load: $e");
+  }
+
+  try {
+    debugPrint("Initializing Firebase...");
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+    debugPrint("Firebase initialized successfully.");
+  } catch (e) {
+    debugPrint("CRITICAL: Firebase initialization failed: $e");
+    // Fallback UI or further handling if needed
+  }
+
   runApp(
     MultiProvider(
       providers: [
@@ -40,7 +50,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
-    
+
     return MaterialApp(
       title: 'Trackify',
       debugShowCheckedModeBanner: false,

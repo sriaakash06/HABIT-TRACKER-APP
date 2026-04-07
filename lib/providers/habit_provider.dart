@@ -4,7 +4,7 @@ import '../models/habit_model.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class HabitProvider with ChangeNotifier {
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  FirebaseFirestore get _firestore => FirebaseFirestore.instance;
   List<Habit> _habits = [];
 
   List<Habit> get habits => _habits;

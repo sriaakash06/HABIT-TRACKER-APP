@@ -1,5 +1,7 @@
 {
-  "projects": {},
+  "projects": {
+    "default": "habittracker-35699"
+  },
   "targets": {},
   "etags": {}
 }

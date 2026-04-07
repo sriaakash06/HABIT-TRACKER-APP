@@ -3,19 +3,27 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 class AuthProvider with ChangeNotifier {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+  FirebaseAuth get _auth => FirebaseAuth.instance;
   // Use GoogleSignIn.instance in v7.0.0+
-  final GoogleSignIn _googleSignIn = GoogleSignIn.instance;
+  GoogleSignIn get _googleSignIn => GoogleSignIn.instance;
   User? _user;
 
   User? get user => _user;
   bool get isAuthenticated => _user != null;
 
   AuthProvider() {
-    _auth.authStateChanges().listen((User? user) {
-      _user = user;
-      notifyListeners();
-    });
+    _init();
+  }
+
+  void _init() {
+    try {
+      _auth.authStateChanges().listen((User? user) {
+        _user = user;
+        notifyListeners();
+      });
+    } catch (e) {
+      debugPrint("Auth initialization error: $e");
+    }
   }
 
   Future<String?> signUp(String email, String password, String displayName) async {
