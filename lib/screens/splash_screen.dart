@@ -5,6 +5,8 @@ import '../providers/auth_provider.dart';
 import 'login_screen.dart';
 import 'home_screen.dart';
 
+import '../widgets/responsive_wrapper.dart';
+
 class SplashScreen extends StatefulWidget {
   const SplashScreen({Key? key}) : super(key: key);
 
@@ -43,8 +45,9 @@ class _SplashScreenState extends State<SplashScreen> {
     final theme = Theme.of(context);
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
-      body: Center(
-        child: Column(
+      body: ResponsiveWrapper(
+        child: Center(
+          child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const Spacer(flex: 3),

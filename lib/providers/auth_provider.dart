@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 class AuthProvider with ChangeNotifier {
   FirebaseAuth get _auth => FirebaseAuth.instance;
-  // Use GoogleSignIn.instance in v7.0.0+
-  GoogleSignIn get _googleSignIn => GoogleSignIn.instance;
+  final GoogleSignIn _googleSignIn = GoogleSignIn();
   User? _user;
 
   User? get user => _user;
@@ -48,17 +48,22 @@ class AuthProvider with ChangeNotifier {
 
   Future<String?> signInWithGoogle() async {
     try {
-      // authenticate() replaced signIn() in v7.0.0+
-      final GoogleSignInAccount? googleUser = await _googleSignIn.authenticate();
-      if (googleUser == null) return 'Google sign in aborted';
+      if (kIsWeb) {
+        final GoogleAuthProvider googleProvider = GoogleAuthProvider();
+        await _auth.signInWithPopup(googleProvider);
+        return null;
+      } else {
+        final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+        if (googleUser == null) return 'Google sign in aborted';
 
-      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
-      final OAuthCredential credential = GoogleAuthProvider.credential(
-        idToken: googleAuth.idToken,
-      );
+        final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+        final OAuthCredential credential = GoogleAuthProvider.credential(
+          idToken: googleAuth.idToken,
+        );
 
-      await _auth.signInWithCredential(credential);
-      return null;
+        await _auth.signInWithCredential(credential);
+        return null;
+      }
     } on Exception catch (e) {
       return e.toString();
     }

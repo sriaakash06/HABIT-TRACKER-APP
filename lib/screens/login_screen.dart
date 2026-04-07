@@ -5,6 +5,8 @@ import '../providers/auth_provider.dart';
 import 'signup_screen.dart';
 import 'home_screen.dart';
 
+import '../widgets/responsive_wrapper.dart';
+
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
 
@@ -30,7 +32,9 @@ class _LoginScreenState extends State<LoginScreen> {
     if (error == null) {
       _navigateToHome();
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error)));
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error)));
+      }
     }
   }
 
@@ -42,7 +46,9 @@ class _LoginScreenState extends State<LoginScreen> {
     if (error == null) {
       _navigateToHome();
     } else if (error != 'Google sign in aborted') {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error)));
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error)));
+      }
     }
   }
 
@@ -57,8 +63,9 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      body: SafeArea(
-        child: SingleChildScrollView(
+      body: ResponsiveWrapper(
+        child: SafeArea(
+          child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 40),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,

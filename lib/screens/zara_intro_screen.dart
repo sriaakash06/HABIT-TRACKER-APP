@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'zara_chat_screen.dart';
 import '../widgets/zara_robot.dart';
+import '../widgets/responsive_wrapper.dart';
 
 class ZaraIntroScreen extends StatefulWidget {
   const ZaraIntroScreen({super.key});
@@ -103,177 +104,180 @@ class _ZaraIntroScreenState extends State<ZaraIntroScreen>
       body: FadeTransition(
         opacity: _fadeAnim,
         child: SafeArea(
-          child: Column(
-            children: [
-              const SizedBox(height: 20),
+          child: ResponsiveWrapper(
+            maxWidth: 600, // Intro screens look better tighter
+            child: Column(
+              children: [
+                const SizedBox(height: 20),
 
-              // Top label
-                Text(
-                  'TRACKIFY · AI ASSISTANT',
-                  style: GoogleFonts.outfit(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w600,
-                    color: theme.primaryColor.withOpacity(0.8),
-                    letterSpacing: 3,
+                // Top label
+                  Text(
+                    'TRACKIFY · AI ASSISTANT',
+                    style: GoogleFonts.outfit(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w600,
+                      color: theme.primaryColor.withOpacity(0.8),
+                      letterSpacing: 3,
+                    ),
                   ),
-                ),
 
-                const Spacer(),
+                  const Spacer(),
 
-                // Robot with Glow
-                Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    // Outer glow
-                    Container(
-                      width: 280,
-                      height: 280,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        gradient: RadialGradient(
-                          colors: [
-                            theme.primaryColor.withOpacity(0.12),
-                            theme.primaryColor.withOpacity(0.02),
-                            Colors.transparent,
+                  // Robot with Glow
+                  Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      // Outer glow
+                      Container(
+                        width: 280,
+                        height: 280,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          gradient: RadialGradient(
+                            colors: [
+                              theme.primaryColor.withOpacity(0.12),
+                              theme.primaryColor.withOpacity(0.02),
+                              Colors.transparent,
+                            ],
+                          ),
+                        ),
+                      ),
+                      // Inner subtle glow
+                      Container(
+                        width: 180,
+                        height: 180,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: theme.primaryColor.withOpacity(0.1),
+                              blurRadius: 60,
+                              spreadRadius: 10,
+                            ),
                           ],
                         ),
                       ),
+                      const ZaraRobot(),
+                    ],
+                  ),
+
+                  const SizedBox(height: 40),
+
+                  // Name & Subtitle
+                  Text(
+                    'Zara',
+                    style: GoogleFonts.outfit(
+                      fontSize: 48,
+                      fontWeight: FontWeight.w900,
+                      color: theme.colorScheme.onSurface,
+                      letterSpacing: -1,
                     ),
-                    // Inner subtle glow
-                    Container(
-                      width: 180,
-                      height: 180,
+                  ),
+                  Text(
+                    '// your habit companion',
+                    style: GoogleFonts.outfit(
+                      fontSize: 13,
+                      color: theme.colorScheme.onSurface.withOpacity(0.4),
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+
+                  const SizedBox(height: 48),
+
+                  // Mock Input (from image)
+                  Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 40),
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                    decoration: BoxDecoration(
+                      color: theme.cardColor.withOpacity(0.5),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: theme.primaryColor.withOpacity(0.3),
+                        width: 1.5,
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            _displayedText.isEmpty ? "Hi! I'm Zara da!" : _displayedText + "|",
+                            style: GoogleFonts.outfit(
+                              color: theme.colorScheme.onSurface,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 24),
+
+                  // Chat button
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 40),
+                    child: Container(
                       decoration: BoxDecoration(
-                        shape: BoxShape.circle,
+                        borderRadius: BorderRadius.circular(50),
                         boxShadow: [
                           BoxShadow(
-                            color: theme.primaryColor.withOpacity(0.1),
-                            blurRadius: 60,
-                            spreadRadius: 10,
+                            color: theme.primaryColor.withOpacity(0.2),
+                            blurRadius: 20,
+                            offset: const Offset(0, 8),
                           ),
                         ],
                       ),
-                    ),
-                    const ZaraRobot(),
-                  ],
-                ),
-
-                const SizedBox(height: 40),
-
-                // Name & Subtitle
-                Text(
-                  'Zara',
-                  style: GoogleFonts.outfit(
-                    fontSize: 48,
-                    fontWeight: FontWeight.w900,
-                    color: theme.colorScheme.onSurface,
-                    letterSpacing: -1,
-                  ),
-                ),
-                Text(
-                  '// your habit companion',
-                  style: GoogleFonts.outfit(
-                    fontSize: 13,
-                    color: theme.colorScheme.onSurface.withOpacity(0.4),
-                    letterSpacing: 0.5,
-                  ),
-                ),
-
-                const SizedBox(height: 48),
-
-                // Mock Input (from image)
-                Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 40),
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                  decoration: BoxDecoration(
-                    color: theme.cardColor.withOpacity(0.5),
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(
-                      color: theme.primaryColor.withOpacity(0.3),
-                      width: 1.5,
-                    ),
-                  ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          _displayedText.isEmpty ? "Hi! I'm Zara da!" : _displayedText + "|",
-                          style: GoogleFonts.outfit(
-                            color: theme.colorScheme.onSurface,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
+                      child: ElevatedButton.icon(
+                        onPressed: () => Navigator.push(
+                          context,
+                          PageRouteBuilder(
+                            pageBuilder: (_, a1, a2) => const ZaraChatScreen(),
+                            transitionsBuilder: (_, anim, __, child) =>
+                                FadeTransition(opacity: anim, child: child),
+                            transitionDuration: const Duration(milliseconds: 300),
                           ),
                         ),
+                        icon: const Icon(Icons.chat_bubble_outline_rounded,
+                            size: 20, color: Colors.white),
+                        label: Text(
+                          'Chat with Zara',
+                          style: GoogleFonts.outfit(
+                            fontSize: 17,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.white,
+                          ),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: theme.primaryColor,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 20),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(50)),
+                          elevation: 0,
+                          minimumSize: const Size(double.infinity, 0),
+                        ),
                       ),
-                    ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 40),
+
+
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text(
+                    'Maybe later',
+                    style: GoogleFonts.outfit(
+                      fontSize: 12,
+                      color: theme.colorScheme.onSurface.withOpacity(0.4),
+                    ),
                   ),
                 ),
 
                 const SizedBox(height: 24),
-
-                // Chat button
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 40),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(50),
-                      boxShadow: [
-                        BoxShadow(
-                          color: theme.primaryColor.withOpacity(0.2),
-                          blurRadius: 20,
-                          offset: const Offset(0, 8),
-                        ),
-                      ],
-                    ),
-                    child: ElevatedButton.icon(
-                      onPressed: () => Navigator.push(
-                        context,
-                        PageRouteBuilder(
-                          pageBuilder: (_, a1, a2) => const ZaraChatScreen(),
-                          transitionsBuilder: (_, anim, __, child) =>
-                              FadeTransition(opacity: anim, child: child),
-                          transitionDuration: const Duration(milliseconds: 300),
-                        ),
-                      ),
-                      icon: const Icon(Icons.chat_bubble_outline_rounded,
-                          size: 20, color: Colors.white),
-                      label: Text(
-                        'Chat with Zara',
-                        style: GoogleFonts.outfit(
-                          fontSize: 17,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.white,
-                        ),
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: theme.primaryColor,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 20),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(50)),
-                        elevation: 0,
-                        minimumSize: const Size(double.infinity, 0),
-                      ),
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 40),
-
-
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text(
-                  'Maybe later',
-                  style: GoogleFonts.outfit(
-                    fontSize: 12,
-                    color: theme.colorScheme.onSurface.withOpacity(0.4),
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 24),
-            ],
+              ],
+            ),
           ),
         ),
       ),

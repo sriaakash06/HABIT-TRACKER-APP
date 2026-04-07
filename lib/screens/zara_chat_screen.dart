@@ -9,6 +9,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../providers/habit_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../widgets/responsive_wrapper.dart';
 
 class ZaraChatScreen extends StatefulWidget {
   const ZaraChatScreen({super.key});
@@ -237,25 +238,28 @@ class _ZaraChatScreenState extends State<ZaraChatScreen>
         ],
       ),
       drawer: _buildDrawer(),
-      body: Column(
-        children: [
-          Expanded(
-            child: _isLoading 
-              ? const Center(child: CircularProgressIndicator(color: Color(0xFF1D9E75)))
-              : ListView.builder(
-                  controller: _scrollCtrl,
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                  itemCount: _messages.length + (_zaraTyping ? 1 : 0),
-                  itemBuilder: (context, i) {
-                    if (_zaraTyping && i == _messages.length) {
-                      return _buildTypingIndicator();
-                    }
-                    return _buildMessageBubble(_messages[i]);
-                  },
-                ),
-          ),
-          _buildInputArea(),
-        ],
+      body: ResponsiveWrapper(
+        maxWidth: 700,
+        child: Column(
+          children: [
+            Expanded(
+              child: _isLoading 
+                ? const Center(child: CircularProgressIndicator(color: Color(0xFF1D9E75)))
+                : ListView.builder(
+                    controller: _scrollCtrl,
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    itemCount: _messages.length + (_zaraTyping ? 1 : 0),
+                    itemBuilder: (context, i) {
+                      if (_zaraTyping && i == _messages.length) {
+                        return _buildTypingIndicator();
+                      }
+                      return _buildMessageBubble(_messages[i]);
+                    },
+                  ),
+            ),
+            _buildInputArea(),
+          ],
+        ),
       ),
     );
   }

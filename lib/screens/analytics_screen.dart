@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import '../providers/habit_provider.dart';
 import '../models/habit_model.dart';
+import '../widgets/responsive_wrapper.dart';
 
 class AnalyticsScreen extends StatefulWidget {
   const AnalyticsScreen({super.key});
@@ -34,40 +35,43 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
           onPressed: () => Navigator.pop(context),
         ),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildProgressSummary(habits),
-            const SizedBox(height: 30),
-            Text(
-              "Contribution Grid 👋",
-              style: GoogleFonts.outfit(
-                fontSize: 18, 
-                fontWeight: FontWeight.bold,
-                color: theme.colorScheme.onSurface
-              ),
-            ),
-            const SizedBox(height: 12),
-            _buildGitHubHeatmap(habits),
-            const SizedBox(height: 30),
-            Text(
-              "Habit Breakdowns",
-              style: GoogleFonts.outfit(
-                fontSize: 18, 
-                fontWeight: FontWeight.bold,
-                color: theme.colorScheme.onSurface
-              ),
-            ),
-            const SizedBox(height: 15),
-            habits.isEmpty 
-              ? Center(child: Text("No habits to analyze da!", style: GoogleFonts.outfit(color: theme.colorScheme.onSurface.withOpacity(0.5))))
-              : Column(
-                  children: habits.map((habit) => _buildHabitBreakdown(habit)).toList(),
+      body: ResponsiveWrapper(
+        maxWidth: 800,
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildProgressSummary(habits),
+              const SizedBox(height: 30),
+              Text(
+                "Contribution Grid 👋",
+                style: GoogleFonts.outfit(
+                  fontSize: 18, 
+                  fontWeight: FontWeight.bold,
+                  color: theme.colorScheme.onSurface
                 ),
-            const SizedBox(height: 20),
-          ],
+              ),
+              const SizedBox(height: 12),
+              _buildGitHubHeatmap(habits),
+              const SizedBox(height: 30),
+              Text(
+                "Habit Breakdowns",
+                style: GoogleFonts.outfit(
+                  fontSize: 18, 
+                  fontWeight: FontWeight.bold,
+                  color: theme.colorScheme.onSurface
+                ),
+              ),
+              const SizedBox(height: 15),
+              habits.isEmpty 
+                ? Center(child: Text("No habits to analyze da!", style: GoogleFonts.outfit(color: theme.colorScheme.onSurface.withOpacity(0.5))))
+                : Column(
+                    children: habits.map((habit) => _buildHabitBreakdown(habit)).toList(),
+                  ),
+              const SizedBox(height: 20),
+            ],
+          ),
         ),
       ),
     );

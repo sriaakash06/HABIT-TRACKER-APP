@@ -12,6 +12,8 @@ import 'zara_intro_screen.dart';
 import 'login_screen.dart';
 import 'profile_screen.dart';
 
+import '../widgets/responsive_wrapper.dart';
+
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -82,78 +84,81 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      body: SafeArea(
-        child: Column(
-          children: [
-            _buildHeader(user?.displayName ?? 'Sri', authProvider),
-            Expanded(
-              child: RefreshIndicator(
-                onRefresh: () => habitProvider.fetchHabits(),
-                child: ListView(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                  children: [
-                    _buildWeeklyCalendar(),
-                    const SizedBox(height: 25),
-                    _buildDayStats(habits, completedOnSelected, isViewingToday, isFutureSelected),
-                    const SizedBox(height: 25),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              isViewingToday
-                                  ? "Today's Habits"
-                                  : "${DateFormat('EEE, MMM d').format(_selectedDate)}'s Habits",
-                              style: GoogleFonts.outfit(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w600,
-                                color: Theme.of(context).colorScheme.onSurface,
-                              ),
-                            ),
-                            if (!isViewingToday && !isFutureSelected)
+      body: ResponsiveWrapper(
+        maxWidth: 800,
+        child: SafeArea(
+          child: Column(
+            children: [
+              _buildHeader(user?.displayName ?? 'Sri', authProvider),
+              Expanded(
+                child: RefreshIndicator(
+                  onRefresh: () => habitProvider.fetchHabits(),
+                  child: ListView(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    children: [
+                      _buildWeeklyCalendar(),
+                      const SizedBox(height: 25),
+                      _buildDayStats(habits, completedOnSelected, isViewingToday, isFutureSelected),
+                      const SizedBox(height: 25),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
                               Text(
-                                'Viewing past data',
+                                isViewingToday
+                                    ? "Today's Habits"
+                                    : "${DateFormat('EEE, MMM d').format(_selectedDate)}'s Habits",
                                 style: GoogleFonts.outfit(
-                                    fontSize: 12,
-                                    color: const Color(0xFF1D9E75)),
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w600,
+                                  color: Theme.of(context).colorScheme.onSurface,
+                                ),
                               ),
-                            if (isFutureSelected)
-                              Text(
-                                '📅 Planned day',
-                                style: GoogleFonts.outfit(
-                                    fontSize: 12,
-                                    color: const Color(0xFF7C3AED)),
-                              ),
-                          ],
-                        ),
-                        Text(
-                          isFutureSelected
-                              ? "${habits.length} Habits"
-                              : "$completedOnSelected/${habits.length} Done",
-                            style: GoogleFonts.outfit(
-                            fontSize: 14,
-                            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                              if (!isViewingToday && !isFutureSelected)
+                                Text(
+                                  'Viewing past data',
+                                  style: GoogleFonts.outfit(
+                                      fontSize: 12,
+                                      color: const Color(0xFF1D9E75)),
+                                ),
+                              if (isFutureSelected)
+                                Text(
+                                  '📅 Planned day',
+                                  style: GoogleFonts.outfit(
+                                      fontSize: 12,
+                                      color: const Color(0xFF7C3AED)),
+                                ),
+                            ],
                           ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 15),
-                    if (habits.isEmpty)
-                      _buildEmptyState()
-                    else
-                      ...habits.map(
-                          (habit) => _buildHabitCard(habit, habitProvider)),
-                    const SizedBox(height: 25),
-                    _buildWeeklyHighlights(habits),
-                    const SizedBox(height: 100),
-                  ],
+                          Text(
+                            isFutureSelected
+                                ? "${habits.length} Habits"
+                                : "$completedOnSelected/${habits.length} Done",
+                              style: GoogleFonts.outfit(
+                              fontSize: 14,
+                              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 15),
+                      if (habits.isEmpty)
+                        _buildEmptyState()
+                      else
+                        ...habits.map(
+                            (habit) => _buildHabitCard(habit, habitProvider)),
+                      const SizedBox(height: 25),
+                      _buildWeeklyHighlights(habits),
+                      const SizedBox(height: 100),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,

@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:provider/provider.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../providers/habit_provider.dart';
+import '../widgets/responsive_wrapper.dart';
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({Key? key}) : super(key: key);
@@ -75,74 +76,77 @@ class _ChatScreenState extends State<ChatScreen> {
         elevation: 0,
         title: const Text('Chat with Zara', style: TextStyle(fontWeight: FontWeight.bold)),
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: _messages.length,
-              itemBuilder: (context, index) {
-                final message = _messages[index];
-                final isUser = message['role'] == 'user';
-                return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8.0),
-                  child: Align(
-                    alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
-                    child: Container(
-                      constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.75),
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: isUser ? const Color(0x6C63FFFF) : Colors.white.withOpacity(0.05),
-                        borderRadius: BorderRadius.circular(15).copyWith(
-                          bottomRight: isUser ? const Radius.circular(0) : const Radius.circular(15),
-                          bottomLeft: isUser ? const Radius.circular(15) : const Radius.circular(0),
+      body: ResponsiveWrapper(
+        maxWidth: 700,
+        child: Column(
+          children: [
+            Expanded(
+              child: ListView.builder(
+                padding: const EdgeInsets.all(16),
+                itemCount: _messages.length,
+                itemBuilder: (context, index) {
+                  final message = _messages[index];
+                  final isUser = message['role'] == 'user';
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                    child: Align(
+                      alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
+                      child: Container(
+                        constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.75),
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: isUser ? const Color(0x6C63FFFF) : Colors.white.withOpacity(0.05),
+                          borderRadius: BorderRadius.circular(15).copyWith(
+                            bottomRight: isUser ? const Radius.circular(0) : const Radius.circular(15),
+                            bottomLeft: isUser ? const Radius.circular(15) : const Radius.circular(0),
+                          ),
+                        ),
+                        child: Text(
+                          message['content']!,
+                          style: const TextStyle(color: Colors.white, fontSize: 16),
                         ),
                       ),
-                      child: Text(
-                        message['content']!,
-                        style: const TextStyle(color: Colors.white, fontSize: 16),
+                    ),
+                  );
+                },
+              ),
+            ),
+            if (_isTyping)
+              const Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Text('Zara is thinking...', style: TextStyle(color: Colors.white38, fontSize: 12)),
+              ),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.02),
+                border: const Border(top: BorderSide(color: Colors.white10)),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _controller,
+                      style: const TextStyle(color: Colors.white),
+                      decoration: InputDecoration(
+                        hintText: 'Talk to Zara...',
+                        hintStyle: const TextStyle(color: Colors.white38),
+                        filled: true,
+                        fillColor: Colors.white.withOpacity(0.05),
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(20), borderSide: BorderSide.none),
                       ),
                     ),
                   ),
-                );
-              },
-            ),
-          ),
-          if (_isTyping)
-            const Padding(
-              padding: EdgeInsets.all(8.0),
-              child: Text('Zara is thinking...', style: TextStyle(color: Colors.white38, fontSize: 12)),
-            ),
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.02),
-              border: const Border(top: BorderSide(color: Colors.white10)),
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _controller,
-                    style: const TextStyle(color: Colors.white),
-                    decoration: InputDecoration(
-                      hintText: 'Talk to Zara...',
-                      hintStyle: const TextStyle(color: Colors.white38),
-                      filled: true,
-                      fillColor: Colors.white.withOpacity(0.05),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(20), borderSide: BorderSide.none),
-                    ),
+                  const SizedBox(width: 10),
+                  IconButton(
+                    icon: const Icon(Icons.send_rounded, color: Color(0x6C63FFFF)),
+                    onPressed: () => _sendMessage(_controller.text),
                   ),
-                ),
-                const SizedBox(width: 10),
-                IconButton(
-                  icon: const Icon(Icons.send_rounded, color: Color(0x6C63FFFF)),
-                  onPressed: () => _sendMessage(_controller.text),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

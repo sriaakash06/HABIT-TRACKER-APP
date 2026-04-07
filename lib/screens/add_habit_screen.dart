@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import '../providers/habit_provider.dart';
+import '../widgets/responsive_wrapper.dart';
 
 // ─────────────────────────────────────────────
 // Habit template model
@@ -252,8 +253,8 @@ class _AddHabitScreenState extends State<AddHabitScreen>
       body: TabBarView(
         controller: _tabController,
         children: [
-          _buildCustomTab(accentColor),
-          _buildTemplatesTab(),
+          ResponsiveWrapper(child: _buildCustomTab(accentColor)),
+          ResponsiveWrapper(child: _buildTemplatesTab()),
         ],
       ),
     );
