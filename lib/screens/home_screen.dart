@@ -145,6 +145,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         ],
                       ),
                       const SizedBox(height: 15),
+                      _buildZaraInsight(habits, user?.displayName ?? 'Sri'),
+                      const SizedBox(height: 25),
                       if (habits.isEmpty)
                         _buildEmptyState()
                       else
@@ -983,6 +985,80 @@ class _HomeScreenState extends State<HomeScreen> {
             Text(label,
                 style:
                     GoogleFonts.outfit(fontSize: 12, color: Colors.white38)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildZaraInsight(List<Habit> habits, String name) {
+    // Basic logic for a greeting/tip
+    String tip = "Let's crush those habits today, $name! 💪";
+    if (habits.isNotEmpty) {
+      final pendingCount = habits.where((h) => !h.isCompletedToday).length;
+      if (pendingCount == 0) {
+        tip = "Ellame mudichiteenga! Super da! 🔥";
+      } else {
+        tip = "You have $pendingCount habits left. Ready to tackle them? 🚀";
+      }
+    }
+
+    return GestureDetector(
+      onTap: () => Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const ZaraIntroScreen()),
+      ),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              const Color(0xFF1D9E75).withOpacity(0.15),
+              const Color(0xFF1D9E75).withOpacity(0.05),
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: const Color(0xFF1D9E75).withOpacity(0.2)),
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: const Color(0xFF1D9E75).withOpacity(0.2),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.auto_awesome, color: Color(0xFF1D9E75), size: 20),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "ZARA INSIGHT",
+                    style: GoogleFonts.outfit(
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1.5,
+                      color: const Color(0xFF1D9E75),
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    tip,
+                    style: GoogleFonts.outfit(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Icon(Icons.chevron_right, color: Color(0xFF1D9E75), size: 20),
           ],
         ),
       ),

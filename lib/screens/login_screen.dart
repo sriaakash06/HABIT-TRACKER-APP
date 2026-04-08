@@ -52,6 +52,16 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
+  // Directly get key from environment with fallback logic
+  static String? get groqApiKey {
+    final key = dotenv.env['GROQ_API_KEY'];
+    if (key == null || key.isEmpty) {
+      debugPrint("GROQ_API_KEY not found in session. Attempting reload...");
+      return null;
+    }
+    return key;
+  }
+
   void _navigateToHome() {
     Navigator.pushReplacement(
       context,
@@ -64,6 +74,7 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: ResponsiveWrapper(
+        maxWidth: 500, // Thinner for login
         child: SafeArea(
           child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 40),
@@ -138,8 +149,9 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildTextField(TextEditingController ctrl, String hint, IconData icon, {bool obscure = false}) {
     return TextField(

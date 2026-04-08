@@ -58,6 +58,7 @@ class _SignupScreenState extends State<SignupScreen> {
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       body: ResponsiveWrapper(
+        maxWidth: 500,
         child: SafeArea(
           child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 20),
@@ -139,8 +140,9 @@ class _SignupScreenState extends State<SignupScreen> {
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildTextField(TextEditingController ctrl, String hint, IconData icon, {bool obscure = false}) {
     final theme = Theme.of(context);

@@ -14,12 +14,29 @@ class ResponsiveWrapper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    bool isWide = MediaQuery.of(context).size.width > maxWidth;
+
     return Container(
-      color: backgroundColor ?? Theme.of(context).scaffoldBackgroundColor,
+      color: backgroundColor ?? (isWide ? Colors.black : Theme.of(context).scaffoldBackgroundColor),
       child: Center(
-        child: ConstrainedBox(
-          constraints: BoxConstraints(maxWidth: maxWidth),
-          child: child,
+        child: Container(
+          decoration: BoxDecoration(
+            boxShadow: [
+              if (isWide)
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.5),
+                  blurRadius: 40,
+                  offset: const Offset(0, 10),
+                ),
+            ],
+          ),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: maxWidth),
+            child: Container(
+              color: Theme.of(context).scaffoldBackgroundColor,
+              child: child,
+            ),
+          ),
         ),
       ),
     );

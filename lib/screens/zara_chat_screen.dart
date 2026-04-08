@@ -160,8 +160,16 @@ class _ZaraChatScreenState extends State<ZaraChatScreen>
   Future<void> _getDynamicResponse(String userText) async {
     final apiKey = dotenv.env['GROQ_API_KEY'];
     if (apiKey == null || apiKey.isEmpty) {
-      _addZaraMessage("AI Key not found da! Please check .env.", saveToDb: true);
-      return;
+      debugPrint("GROQ_API_KEY is null or empty. Available keys: ${dotenv.env.keys}");
+      // Attempt critical reload if keys missing
+      if (dotenv.env.isEmpty) {
+        try { await dotenv.load(fileName: ".env"); } catch (_) {}
+      }
+      final retryKey = dotenv.env['GROQ_API_KEY'];
+      if (retryKey == null || retryKey.isEmpty) {
+        _addZaraMessage("AI Key not found da! Please check .env file and make sure GROQ_API_KEY is defined.", saveToDb: true);
+        return;
+      }
     }
 
     final habitProvider = Provider.of<HabitProvider>(context, listen: false);
@@ -179,7 +187,7 @@ class _ZaraChatScreenState extends State<ZaraChatScreen>
           "messages": [
             {
               "role": "system",
-              "content": "You are 'Zara', a futuristic and friendly AI habit companion. Speak English with Tamil slang like 'da', 'ko', 'machan'. Be motivating. Context:\n$habitContext"
+              "content": "You are 'Zara', a high-energy, futuristic, and friendly AI habit companion. You speak English with casual Tamil slang like 'da', 'ko', 'machan', 'nanba'. Your goal is to be a motivational coach. Analyze the user's current habits and streaks if provided. Be concise, punchy, and helpful. Don't be too repetitive with the slang. Context:\n$habitContext"
             },
             ...(_messages.length > 6 ? _messages.sublist(_messages.length - 6) : _messages).map((m) => {
               "role": m.isUser ? "user" : "assistant",
@@ -221,21 +229,29 @@ class _ZaraChatScreenState extends State<ZaraChatScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-        elevation: 0,
-        centerTitle: true,
-        title: Text(
-          "Zara AI",
-          style: GoogleFonts.outfit(fontSize: 18, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface),
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(60),
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 700),
+            child: AppBar(
+              backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+              elevation: 0,
+              centerTitle: true,
+              title: Text(
+                "Zara AI",
+                style: GoogleFonts.outfit(fontSize: 18, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface),
+              ),
+              iconTheme: IconThemeData(color: Theme.of(context).colorScheme.onSurface),
+              actions: [
+                IconButton(
+                  icon: Icon(Icons.add_circle_outline, color: Theme.of(context).primaryColor),
+                  onPressed: _createNewSession,
+                )
+              ],
+            ),
+          ),
         ),
-        iconTheme: IconThemeData(color: Theme.of(context).colorScheme.onSurface),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.add_circle_outline, color: Theme.of(context).primaryColor),
-            onPressed: _createNewSession,
-          )
-        ],
       ),
       drawer: _buildDrawer(),
       body: ResponsiveWrapper(
@@ -378,7 +394,7 @@ class _ZaraChatScreenState extends State<ZaraChatScreen>
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: msg.isUser 
-                ? Theme.of(context).primaryColor.withOpacity(0.1) 
+                ? const Color(0xFF1D9E75).withOpacity(0.12)
                 : Theme.of(context).cardColor,
               borderRadius: BorderRadius.only(
                 topLeft: const Radius.circular(20),
@@ -386,7 +402,20 @@ class _ZaraChatScreenState extends State<ZaraChatScreen>
                 bottomLeft: Radius.circular(isZara ? 4 : 20),
                 bottomRight: Radius.circular(isZara ? 20 : 4),
               ),
-              border: isZara ? Border.all(color: Theme.of(context).dividerColor) : null,
+              border: Border.all(
+                color: msg.isUser 
+                    ? const Color(0xFF1D9E75).withOpacity(0.2)
+                    : Theme.of(context).dividerColor,
+                width: 1,
+              ),
+              boxShadow: [
+                if (!msg.isUser)
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+              ],
             ),
             child: Text(
               msg.text,

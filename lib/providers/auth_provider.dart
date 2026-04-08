@@ -5,7 +5,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 
 class AuthProvider with ChangeNotifier {
   FirebaseAuth get _auth => FirebaseAuth.instance;
-  final GoogleSignIn _googleSignIn = GoogleSignIn();
+  final GoogleSignIn _googleSignIn = GoogleSignIn.instance;
   User? _user;
 
   User? get user => _user;
@@ -53,12 +53,15 @@ class AuthProvider with ChangeNotifier {
         await _auth.signInWithPopup(googleProvider);
         return null;
       } else {
-        final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+        // Fallback or specific mobile implementation
+        final GoogleSignInAccount? googleUser = await _googleSignIn.authenticate();
         if (googleUser == null) return 'Google sign in aborted';
 
         final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+        final GoogleSignInClientAuthorization? authData = await googleUser.authorizationClient.authorizationForScopes([]);
         final OAuthCredential credential = GoogleAuthProvider.credential(
           idToken: googleAuth.idToken,
+          accessToken: authData?.accessToken,
         );
 
         await _auth.signInWithCredential(credential);
@@ -70,7 +73,9 @@ class AuthProvider with ChangeNotifier {
   }
 
   Future<void> logout() async {
-    await _googleSignIn.signOut();
+    if (!kIsWeb) {
+      await _googleSignIn.signOut();
+    }
     await _auth.signOut();
   }
 }
