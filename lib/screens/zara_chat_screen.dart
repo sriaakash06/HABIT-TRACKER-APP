@@ -9,6 +9,8 @@ import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import '../widgets/responsive_wrapper.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:http/http.dart' as http;
 
 class ZaraChatScreen extends StatefulWidget {
   const ZaraChatScreen({super.key});
@@ -161,23 +163,48 @@ class _ZaraChatScreenState extends State<ZaraChatScreen>
     final habitContext = habitProvider.habits.map((h) => "- ${h.name}: Streak ${h.streak}").join("\n");
 
     try {
-      // Securely call the GROQ API through Firebase Cloud Functions
-      final result = await FirebaseFunctions.instance
-          .httpsCallable('getZaraResponse')
-          .call({
-        "message": userText,
-        "habitContext": habitContext,
-        "history": (_messages.length > 6 ? _messages.sublist(_messages.length - 6) : _messages).map((m) => {
-          "text": m.text,
-          "isUser": m.isUser,
-        }).toList(),
-      });
+      final apiKey = dotenv.env['GROQ_API_KEY'];
+      if (apiKey == null || apiKey.isEmpty) {
+        throw Exception('GROQ_API_KEY not found in .env');
+      }
 
-      final aiMessage = result.data['response'];
-      _addZaraMessage(aiMessage ?? "Brain error da!", saveToDb: true);
+      final response = await http.post(
+        Uri.parse('https://api.groq.com/openai/v1/chat/completions'),
+        headers: {
+          'Authorization': 'Bearer $apiKey',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          "model": "llama-3.3-70b-versatile",
+          "messages": [
+            {
+              "role": "system",
+              "content": "You are 'Zara', a high-energy, futuristic, and friendly AI habit companion. You speak English with casual Tamil slang like 'da', 'ko', 'machan', 'nanba'. Your goal is to be a motivational coach. Analyze the user's current habits and streaks if provided. Be concise, punchy, and helpful. Don't be too repetitive with the slang. Context:\n$habitContext",
+            },
+            ...(_messages.length > 6 ? _messages.sublist(_messages.length - 6) : _messages).map((m) => {
+              "role": m.isUser ? "user" : "assistant",
+              "content": m.text,
+            }).toList(),
+            {
+              "role": "user",
+              "content": userText,
+            }
+          ],
+          "temperature": 0.7,
+          "max_tokens": 1024,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final aiMessage = data['choices'][0]['message']['content'];
+        _addZaraMessage(aiMessage ?? "Brain error da!", saveToDb: true);
+      } else {
+        throw Exception('API returned ${response.statusCode}');
+      }
     } catch (e) {
-      debugPrint("Cloud Function Error: $e");
-      _addZaraMessage("Connection failure da! 📶 (Functions Error)", saveToDb: true);
+      debugPrint("API Error: $e");
+      _addZaraMessage("Connection failure da! 📶 (Check internet/API key)", saveToDb: true);
     } finally {
       if (mounted) setState(() => _zaraTyping = false);
     }
