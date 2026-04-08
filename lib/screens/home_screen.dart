@@ -82,11 +82,11 @@ class _HomeScreenState extends State<HomeScreen> {
         ? 0
         : habits.where((h) => _isCompletedOn(h, _selectedDate)).length;
 
-    return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      body: ResponsiveWrapper(
-        maxWidth: 800,
-        child: SafeArea(
+    return ResponsiveWrapper(
+      maxWidth: 800,
+      child: Scaffold(
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        body: SafeArea(
           child: Column(
             children: [
               _buildHeader(user?.displayName ?? 'Sri', authProvider),
@@ -162,18 +162,18 @@ class _HomeScreenState extends State<HomeScreen> {
             ],
           ),
         ),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => const AddHabitScreen()),
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+        floatingActionButton: FloatingActionButton(
+          onPressed: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const AddHabitScreen()),
+          ),
+          backgroundColor: const Color(0xFF1D9E75),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
+          child: const Icon(Icons.add, color: Colors.white, size: 30),
         ),
-        backgroundColor: const Color(0xFF1D9E75),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
-        child: const Icon(Icons.add, color: Colors.white, size: 30),
+        bottomNavigationBar: _buildBottomNav(),
       ),
-      bottomNavigationBar: _buildBottomNav(),
     );
   }
 

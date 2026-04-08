@@ -17,6 +17,7 @@ void main() async {
   // Load environment variables for all platforms with error handling
   try {
     await dotenv.load(fileName: ".env");
+    debugPrint("Environment loaded. GROQ_API_KEY present: ${dotenv.env.containsKey('GROQ_API_KEY')}");
   } catch (e) {
     debugPrint("Warning: .env file not found or failed to load: $e");
   }

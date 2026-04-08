@@ -3,12 +3,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../widgets/zara_robot.dart';
 import 'package:intl/intl.dart';
-import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../providers/habit_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import '../widgets/responsive_wrapper.dart';
 
 class ZaraChatScreen extends StatefulWidget {
@@ -158,56 +157,27 @@ class _ZaraChatScreenState extends State<ZaraChatScreen>
   }
 
   Future<void> _getDynamicResponse(String userText) async {
-    final apiKey = dotenv.env['GROQ_API_KEY'];
-    if (apiKey == null || apiKey.isEmpty) {
-      debugPrint("GROQ_API_KEY is null or empty. Available keys: ${dotenv.env.keys}");
-      // Attempt critical reload if keys missing
-      if (dotenv.env.isEmpty) {
-        try { await dotenv.load(fileName: ".env"); } catch (_) {}
-      }
-      final retryKey = dotenv.env['GROQ_API_KEY'];
-      if (retryKey == null || retryKey.isEmpty) {
-        _addZaraMessage("AI Key not found da! Please check .env file and make sure GROQ_API_KEY is defined.", saveToDb: true);
-        return;
-      }
-    }
-
     final habitProvider = Provider.of<HabitProvider>(context, listen: false);
     final habitContext = habitProvider.habits.map((h) => "- ${h.name}: Streak ${h.streak}").join("\n");
 
     try {
-      final response = await http.post(
-        Uri.parse('https://api.groq.com/openai/v1/chat/completions'),
-        headers: {
-          'Authorization': 'Bearer $apiKey',
-          'Content-Type': 'application/json',
-        },
-        body: jsonEncode({
-          "model": "llama-3.3-70b-versatile",
-          "messages": [
-            {
-              "role": "system",
-              "content": "You are 'Zara', a high-energy, futuristic, and friendly AI habit companion. You speak English with casual Tamil slang like 'da', 'ko', 'machan', 'nanba'. Your goal is to be a motivational coach. Analyze the user's current habits and streaks if provided. Be concise, punchy, and helpful. Don't be too repetitive with the slang. Context:\n$habitContext"
-            },
-            ...(_messages.length > 6 ? _messages.sublist(_messages.length - 6) : _messages).map((m) => {
-              "role": m.isUser ? "user" : "assistant",
-              "content": m.text
-            }),
-          ],
-          "temperature": 0.7,
-          "max_tokens": 1024,
-        }),
-      );
+      // Securely call the GROQ API through Firebase Cloud Functions
+      final result = await FirebaseFunctions.instance
+          .httpsCallable('getZaraResponse')
+          .call({
+        "message": userText,
+        "habitContext": habitContext,
+        "history": (_messages.length > 6 ? _messages.sublist(_messages.length - 6) : _messages).map((m) => {
+          "text": m.text,
+          "isUser": m.isUser,
+        }).toList(),
+      });
 
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        final aiMessage = data['choices'][0]['message']['content'];
-        _addZaraMessage(aiMessage, saveToDb: true);
-      } else {
-        _addZaraMessage("Brain error da! Status ${response.statusCode}. 🤖", saveToDb: true);
-      }
+      final aiMessage = result.data['response'];
+      _addZaraMessage(aiMessage ?? "Brain error da!", saveToDb: true);
     } catch (e) {
-      _addZaraMessage("Connection failure da! 📶", saveToDb: true);
+      debugPrint("Cloud Function Error: $e");
+      _addZaraMessage("Connection failure da! 📶 (Functions Error)", saveToDb: true);
     } finally {
       if (mounted) setState(() => _zaraTyping = false);
     }
@@ -227,36 +197,28 @@ class _ZaraChatScreenState extends State<ZaraChatScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(60),
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 700),
-            child: AppBar(
-              backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-              elevation: 0,
-              centerTitle: true,
-              title: Text(
-                "Zara AI",
-                style: GoogleFonts.outfit(fontSize: 18, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface),
-              ),
-              iconTheme: IconThemeData(color: Theme.of(context).colorScheme.onSurface),
-              actions: [
-                IconButton(
-                  icon: Icon(Icons.add_circle_outline, color: Theme.of(context).primaryColor),
-                  onPressed: _createNewSession,
-                )
-              ],
-            ),
+    return ResponsiveWrapper(
+      maxWidth: 700,
+      child: Scaffold(
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        appBar: AppBar(
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+          elevation: 0,
+          centerTitle: true,
+          title: Text(
+            "Zara AI",
+            style: GoogleFonts.outfit(fontSize: 18, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface),
           ),
+          iconTheme: IconThemeData(color: Theme.of(context).colorScheme.onSurface),
+          actions: [
+            IconButton(
+              icon: Icon(Icons.add_circle_outline, color: Theme.of(context).primaryColor),
+              onPressed: _createNewSession,
+            )
+          ],
         ),
-      ),
-      drawer: _buildDrawer(),
-      body: ResponsiveWrapper(
-        maxWidth: 700,
-        child: Column(
+        drawer: _buildDrawer(),
+        body: Column(
           children: [
             Expanded(
               child: _isLoading 

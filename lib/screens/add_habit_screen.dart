@@ -226,36 +226,39 @@ class _AddHabitScreenState extends State<AddHabitScreen>
   Widget build(BuildContext context) {
     final accentColor = Color(int.parse(_selectedColor, radix: 16));
 
-    return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      appBar: AppBar(
+    return ResponsiveWrapper(
+      maxWidth: 800,
+      child: Scaffold(
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-        title: Text("New Habit",
-            style: GoogleFonts.outfit(fontWeight: FontWeight.bold)),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
+        appBar: AppBar(
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+          title: Text("New Habit",
+              style: GoogleFonts.outfit(fontWeight: FontWeight.bold)),
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () => Navigator.pop(context),
+          ),
+          bottom: TabBar(
+            controller: _tabController,
+            indicatorColor: accentColor,
+            indicatorWeight: 3,
+            labelColor: accentColor,
+            unselectedLabelColor: Theme.of(context).colorScheme.onSurface.withOpacity(0.38),
+            tabs: [
+              Tab(child: Text('✏️ Custom', style: GoogleFonts.outfit(fontSize: 14))),
+              Tab(
+                  child: Text('⚡ Quick Templates',
+                      style: GoogleFonts.outfit(fontSize: 14))),
+            ],
+          ),
         ),
-        bottom: TabBar(
+        body: TabBarView(
           controller: _tabController,
-          indicatorColor: accentColor,
-          indicatorWeight: 3,
-          labelColor: accentColor,
-          unselectedLabelColor: Theme.of(context).colorScheme.onSurface.withOpacity(0.38),
-          tabs: [
-            Tab(child: Text('✏️ Custom', style: GoogleFonts.outfit(fontSize: 14))),
-            Tab(
-                child: Text('⚡ Quick Templates',
-                    style: GoogleFonts.outfit(fontSize: 14))),
+          children: [
+            _buildCustomTab(accentColor),
+            _buildTemplatesTab(),
           ],
         ),
-      ),
-      body: TabBarView(
-        controller: _tabController,
-        children: [
-          ResponsiveWrapper(child: _buildCustomTab(accentColor)),
-          ResponsiveWrapper(child: _buildTemplatesTab()),
-        ],
       ),
     );
   }

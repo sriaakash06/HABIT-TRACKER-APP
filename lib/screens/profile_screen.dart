@@ -8,7 +8,11 @@ import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:pdf/widgets.dart' as pw;
+import 'package:pdf/pdf.dart';
 import 'package:excel/excel.dart' hide Border;
+import 'package:printing/printing.dart';
+import 'package:universal_html/html.dart' as html;
+import 'dart:convert';
 
 import '../providers/auth_provider.dart';
 import '../providers/habit_provider.dart';
@@ -83,7 +87,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
       );
 
       if (kIsWeb) {
-        throw Exception('PDF Export not supported in this web demo yet. Use a real device for PDF generation.');
+        await Printing.layoutPdf(
+          onLayout: (PdfPageFormat format) async => pdf.save(),
+          name: 'habit_report.pdf',
+        );
+        return;
       }
       final output = await getTemporaryDirectory();
       final file = File('${output.path}/habit_report.pdf');
@@ -132,9 +140,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
       var fileBytes = excel.save();
       if (fileBytes != null) {
         if (kIsWeb) {
-        throw Exception('Excel Export not supported in this web demo yet. Use a real device for Excel generation.');
-      }
-      final output = await getTemporaryDirectory();
+          final blob = html.Blob([fileBytes]);
+          final url = html.Url.createObjectUrlFromBlob(blob);
+          final anchor = html.AnchorElement(href: url)
+            ..setAttribute("download", "habit_report.xlsx")
+            ..click();
+          html.Url.revokeObjectUrl(url);
+          return;
+        }
+        final output = await getTemporaryDirectory();
         final file = File('${output.path}/habit_report.xlsx');
         await file.writeAsBytes(fileBytes);
         await Share.shareXFiles([XFile(file.path)], text: 'My Habit Report (Excel)');
@@ -142,7 +156,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     } catch (e) {
       if (context.mounted) {
         if (kIsWeb) {
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Export not supported on Web.')));
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Export error: $e')));
           return;
         }
         // Fallback to CSV if Excel package API is strictly different in this version
@@ -175,18 +189,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final chartData = _getLast7DaysData(habits);
     final double maxY = chartData.isEmpty ? 5.0 : (chartData.reduce((a, b) => a > b ? a : b) + 2).toDouble();
 
-    return Scaffold(
-      backgroundColor: theme.scaffoldBackgroundColor,
-      appBar: AppBar(
-        title: Text('Profile & Analytics', 
-          style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: theme.colorScheme.onSurface)),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: BackButton(color: theme.colorScheme.onSurface),
-      ),
-      body: SafeArea(
-        child: ResponsiveWrapper(
-          maxWidth: 800,
+    return ResponsiveWrapper(
+      maxWidth: 800,
+      child: Scaffold(
+        backgroundColor: theme.scaffoldBackgroundColor,
+        appBar: AppBar(
+          title: Text('Profile & Analytics', 
+            style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: theme.colorScheme.onSurface)),
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          leading: BackButton(color: theme.colorScheme.onSurface),
+        ),
+        body: SafeArea(
           child: SingleChildScrollView(
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
             child: Column(

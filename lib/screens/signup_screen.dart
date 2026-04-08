@@ -55,93 +55,93 @@ class _SignupScreenState extends State<SignupScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Scaffold(
-      backgroundColor: theme.scaffoldBackgroundColor,
-      body: ResponsiveWrapper(
-        maxWidth: 500,
-        child: SafeArea(
+    return ResponsiveWrapper(
+      maxWidth: 500,
+      child: Scaffold(
+        backgroundColor: theme.scaffoldBackgroundColor,
+        body: SafeArea(
           child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Row(
-                children: [
-                   IconButton(
-                    onPressed: () => Navigator.pop(context),
-                    icon: Icon(Icons.arrow_back_ios_new_rounded, color: theme.colorScheme.onSurface, size: 20),
+            padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Row(
+                  children: [
+                    IconButton(
+                      onPressed: () => Navigator.pop(context),
+                      icon: Icon(Icons.arrow_back_ios_new_rounded, color: theme.colorScheme.onSurface, size: 20),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                Container(
+                  width: 80,
+                  height: 80,
+                  decoration: BoxDecoration(
+                    color: theme.primaryColor.withOpacity(0.1),
+                    shape: BoxShape.circle,
                   ),
-                ],
-              ),
-              const SizedBox(height: 10),
-              Container(
-                width: 80,
-                height: 80,
-                decoration: BoxDecoration(
-                  color: theme.primaryColor.withOpacity(0.1),
-                  shape: BoxShape.circle,
+                  child: Icon(Icons.person_add_rounded, size: 40, color: theme.primaryColor),
                 ),
-                child: Icon(Icons.person_add_rounded, size: 40, color: theme.primaryColor),
-              ),
-              const SizedBox(height: 32),
-              Text(
-                'Create Account',
-                textAlign: TextAlign.center,
-                style: GoogleFonts.outfit(
-                  fontSize: 32,
-                  fontWeight: FontWeight.bold,
-                  color: theme.colorScheme.onSurface,
-                ),
-              ),
-              const SizedBox(height: 12),
-              Text(
-                'Start your journey to better habits with Trackify.',
-                textAlign: TextAlign.center,
-                style: GoogleFonts.outfit(color: theme.colorScheme.onSurface.withOpacity(0.4)),
-              ),
-              const SizedBox(height: 48),
-              _buildTextField(_nameController, 'Full Name', Icons.person_outline),
-              const SizedBox(height: 16),
-              _buildTextField(_emailController, 'Email Address', Icons.email_outlined),
-              const SizedBox(height: 16),
-              _buildTextField(_passwordController, 'Password', Icons.lock_outline, obscure: true),
-              const SizedBox(height: 16),
-              _buildTextField(_confirmPasswordController, 'Confirm Password', Icons.lock_outline, obscure: true),
-              const SizedBox(height: 40),
-              ElevatedButton(
-                onPressed: _isLoading ? null : _handleRegister,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: theme.primaryColor,
-                  foregroundColor: Colors.white,
-                  minimumSize: const Size(double.infinity, 64),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-                  elevation: 0,
-                ),
-                child: _isLoading
-                    ? const SizedBox(
-                        height: 24,
-                        width: 24,
-                        child: CircularProgressIndicator(color: Colors.white, strokeWidth: 3),
-                      )
-                    : Text('Initialize Account', style: GoogleFonts.outfit(fontSize: 18, fontWeight: FontWeight.bold)),
-              ),
-              const SizedBox(height: 24),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text("Already a member?", style: GoogleFonts.outfit(color: theme.colorScheme.onSurface.withOpacity(0.4))),
-                  TextButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: Text("Sign In", style: GoogleFonts.outfit(color: theme.primaryColor, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 32),
+                Text(
+                  'Create Account',
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.outfit(
+                    fontSize: 32,
+                    fontWeight: FontWeight.bold,
+                    color: theme.colorScheme.onSurface,
                   ),
-                ],
-              ),
-            ],
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  'Start your journey to better habits with Trackify.',
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.outfit(color: theme.colorScheme.onSurface.withOpacity(0.4)),
+                ),
+                const SizedBox(height: 48),
+                _buildTextField(_nameController, 'Full Name', Icons.person_outline),
+                const SizedBox(height: 16),
+                _buildTextField(_emailController, 'Email Address', Icons.email_outlined),
+                const SizedBox(height: 16),
+                _buildTextField(_passwordController, 'Password', Icons.lock_outline, obscure: true),
+                const SizedBox(height: 16),
+                _buildTextField(_confirmPasswordController, 'Confirm Password', Icons.lock_outline, obscure: true),
+                const SizedBox(height: 40),
+                ElevatedButton(
+                  onPressed: _isLoading ? null : _handleRegister,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: theme.primaryColor,
+                    foregroundColor: Colors.white,
+                    minimumSize: const Size(double.infinity, 64),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                    elevation: 0,
+                  ),
+                  child: _isLoading
+                      ? const SizedBox(
+                          height: 24,
+                          width: 24,
+                          child: CircularProgressIndicator(color: Colors.white, strokeWidth: 3),
+                        )
+                      : Text('Initialize Account', style: GoogleFonts.outfit(fontSize: 18, fontWeight: FontWeight.bold)),
+                ),
+                const SizedBox(height: 24),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text("Already a member?", style: GoogleFonts.outfit(color: theme.colorScheme.onSurface.withOpacity(0.4))),
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: Text("Sign In", style: GoogleFonts.outfit(color: theme.primaryColor, fontWeight: FontWeight.bold)),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),
-    ),
-  );
+    );
 }
 
   Widget _buildTextField(TextEditingController ctrl, String hint, IconData icon, {bool obscure = false}) {
