@@ -16,6 +16,17 @@
 
 Trackify AI is a premium, AI-powered habit tracking application designed to help you build better habits and achieve your goals. With a sleek "Neon Sanctuary" design and deep AI integration, Trackify provides personalized coaching and advanced data visualization to keep you on the right path.
 
+## 🚀 Live Demo
+https://habittracker-35699.web.app/
+
+## 🤖 AI Chatbot
+- Integrated GROQ API
+- Secure backend using Firebase Cloud Functions
+- Real-time AI habit assistant
+
+## ☁️ Deployment
+- Firebase Hosting
+
 ---
 
 ## 🌟 Key Features
@@ -34,14 +45,20 @@ Experience a professional, editorial-style interface with the **Neon Sanctuary**
 - Premium micro-animations throughout the app
 
 ### 📊 Advanced Analytics & Insights
+
 Visualizing your progress has never been easier.
+
 - **GitHub-Style Heatmap**: Track history and consistency at a glance.
+
 - **Interactive Charts**: Measure streaks and completion rates with `fl_chart`.
 - **Export Data**: Generate professional PDF reports and Excel spreadsheets of your progress.
 
 ### 📚 Comprehensive Habit Library
+
 Choose from hundreds of curated habit templates tailored for all age groups and lifestyles.
+
 - Simplified habit creation flow
+
 - Templates for fitness, productivity, mental health, and more
 
 ---
